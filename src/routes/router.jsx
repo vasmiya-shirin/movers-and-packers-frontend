@@ -15,6 +15,8 @@ import ProviderDashboard from "../pages/ProviderDashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import Unauthorized from "../pages/Unauthorized";
 import PendingApproval from "../pages/PendingApproval";
+import About from "../pages/About";
+import Contact from "../pages/Contact";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +27,14 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
+      {
+        path: "/contact",
+        element: <Contact />,
       },
       {
         path: "/register",
