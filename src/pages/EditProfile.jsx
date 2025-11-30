@@ -1,81 +1,82 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import API from "../api/api";
-import { motion } from "framer-motion";
 
-function EditProfile() {
-  const navigate = useNavigate();
-
+const EditProfile = () => {
   const [form, setForm] = useState({
     name: "",
-    address: "",
     phone: "",
+    address: "",
   });
 
-  useEffect(() => {
-    API.get("/users/profile").then((res) => {
-      setForm({
-        name: res.data.name,
-        address: res.data.address,
-        phone: res.data.phone,
-      });
+  const fetchProfile = async () => {
+    const res = await API.get("/users/profile");
+    setForm({
+      name: res.data.name,
+      phone: res.data.phone || "",
+      address: res.data.address || "",
     });
+  };
+
+  useEffect(() => {
+    fetchProfile();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await API.put("/users/edit-profile", form);
-    alert("Profile updated!");
-    navigate("/client-dashboard");
+    alert("Profile updated successfully!");
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen flex justify-center items-center bg-gray-100 p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Edit Profile
-        </h2>
+    <div className="p-10 bg-gray-100 min-h-screen">
+      <div className="bg-white p-8 rounded-xl shadow-md max-w-xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-6">Edit Profile</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {["name", "address", "phone"].map((field) => (
-            <div key={field}>
-              <label className="block text-sm font-medium mb-1 capitalize">
-                {field}
-              </label>
-              <input
-                type="text"
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                className="w-full border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl px-4 py-2 outline-none"
-              />
-            </div>
-          ))}
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div>
+            <label className="block font-medium">Name</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full mt-1 p-3 border rounded-lg"
+              required
+            />
+          </div>
 
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.95 }}
+          <div>
+            <label className="block font-medium">Phone</label>
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              className="w-full mt-1 p-3 border rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Address</label>
+            <textarea
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              className="w-full mt-1 p-3 border rounded-lg"
+            />
+          </div>
+
+          <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-xl font-semibold"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Save Changes
-          </motion.button>
+          </button>
         </form>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
-}
+};
 
 export default EditProfile;

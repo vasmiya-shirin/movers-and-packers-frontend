@@ -1,20 +1,28 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/api";
-import { motion } from "framer-motion";
 
 const BookService = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
+
   const [service, setService] = useState(null);
   const [date, setDate] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Fetch service details
   useEffect(() => {
-    API.get(`/services/${serviceId}`).then((res) => {
-      setService(res.data.service || res.data);
-    });
+    const fetchService = async () => {
+      try {
+        const res = await API.get(`/services/${serviceId}`);
+        setService(res.data.service || res.data);
+      } catch (err) {
+        console.log("Error fetching service:", err);
+      }
+    };
+    fetchService();
   }, [serviceId]);
 
   const handleBooking = async () => {
@@ -22,10 +30,11 @@ const BookService = () => {
     if (!pickupLocation || !dropLocation)
       return alert("Please enter pickup & drop locations");
 
-    let booking;
+    setLoading(true);
+
     try {
+      // 1️⃣ Create booking (backend automatically sets client)
       const bookingRes = await API.post("/bookings", {
-        provider: service.provider._id,
         service: serviceId,
         pickupLocation,
         dropLocation,
@@ -33,77 +42,78 @@ const BookService = () => {
         totalPrice: service.price,
       });
 
-      booking = bookingRes.data.booking;
+      const booking = bookingRes.data.booking;
+
+      // 2️⃣ Create Stripe checkout session
+      const stripeRes = await API.post("/payments/create-checkout-session", {
+        bookingId: booking._id,
+        amount: service.price,
+        serviceName: service.title,
+      });
+
+      // 3️⃣ Redirect to Stripe payment page
+      window.location.href = stripeRes.data.url;
     } catch (err) {
-      console.log(err.response?.data);
-      return;
+      console.log("Booking error:", err.response?.data || err.message);
+      alert(
+        err.response?.data?.message ||
+          "Something went wrong while booking the service."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    const stripeRes = await API.post("/payments/create-checkout-session", {
-      bookingId: booking._id,
-      amount: service.price,
-      serviceName: service.title,
-    });
-
-    window.location.href = stripeRes.data.url;
   };
 
-  if (!service) return <p>Loading...</p>;
+  if (!service) return <p className="p-10">Loading service...</p>;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="p-10 max-w-lg mx-auto"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white shadow-xl rounded-xl p-6"
-      >
+    <div className="p-10 max-w-lg mx-auto">
+      <div className="bg-white border shadow-sm rounded-xl p-6">
         <h1 className="text-2xl font-bold mb-4">Book: {service.title}</h1>
 
-        <label className="block text-sm font-semibold mb-2">
-          Pickup Location
-        </label>
+        {/* Pickup Location */}
+        <label className="block text-sm font-semibold mb-2">Pickup Location</label>
         <input
           type="text"
-          className="w-full border px-3 py-2 rounded mb-4 focus:border-indigo-500 focus:ring-indigo-500"
+          className="w-full border px-3 py-2 rounded mb-4 focus:ring-2 focus:ring-indigo-500"
           value={pickupLocation}
           onChange={(e) => setPickupLocation(e.target.value)}
+          placeholder="Enter pickup location"
         />
 
-        <label className="block text-sm font-semibold mb-2">
-          Drop Location
-        </label>
+        {/* Drop Location */}
+        <label className="block text-sm font-semibold mb-2">Drop Location</label>
         <input
           type="text"
-          className="w-full border px-3 py-2 rounded mb-4 focus:border-indigo-500"
+          className="w-full border px-3 py-2 rounded mb-4 focus:ring-2 focus:ring-indigo-500"
           value={dropLocation}
           onChange={(e) => setDropLocation(e.target.value)}
+          placeholder="Enter drop location"
         />
 
-        <label className="block text-sm font-semibold mb-2">
-          Choose Date
-        </label>
+        {/* Date */}
+        <label className="block text-sm font-semibold mb-2">Choose Date</label>
         <input
           type="date"
-          className="w-full border px-3 py-2 rounded focus:border-indigo-500"
+          className="w-full border px-3 py-2 rounded mb-4 focus:ring-2 focus:ring-indigo-500"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
 
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.95 }}
+        {/* Confirm Button */}
+        <button
           onClick={handleBooking}
-          className="mt-6 bg-indigo-600 text-white w-full py-2 rounded"
+          className={`mt-6 w-full py-2 rounded-lg font-medium text-white ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+          disabled={loading}
         >
-          Confirm & Pay ₹{service.price}
-        </motion.button>
-      </motion.div>
-    </motion.div>
+          {loading ? "Processing..." : `Confirm & Pay ₹${service.price}`}
+        </button>
+      </div>
+    </div>
   );
 };
 
 export default BookService;
+

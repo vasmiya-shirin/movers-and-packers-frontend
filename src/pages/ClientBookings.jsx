@@ -1,68 +1,96 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/api";
-import { motion } from "framer-motion";
+import ReviewForm from "../pages/ReviewForm";
 
-function ClientBookings() {
+const ClientBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
+  const fetchBookings = async () => {
+    try {
+      const res = await API.get("/bookings/my");
+      console.log("BOOKING RESPONSE:", res.data);
+      setBookings(res.data.bookings || []);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      setBookings([]);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await API.get("/bookings/my-bookings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setBookings(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchBookings();
-  }, [token]);
+  }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="p-8"
-    >
-      <h1 className="text-2xl font-bold mb-6">My Bookings</h1>
+    <div className="p-10 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-semibold mb-8">My Bookings</h1>
 
-      {bookings.length === 0 ? (
-        <p>No bookings found.</p>
-      ) : (
-        <div className="grid gap-4">
-          {bookings.map((b, i) => (
-            <motion.div
+      <div className="space-y-6">
+        {bookings.length === 0 ? (
+          <p className="text-gray-600">No bookings found.</p>
+        ) : (
+          bookings.map((b) => (
+            <div
               key={b._id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="p-6 bg-white shadow rounded-xl"
+              className="bg-white p-6 border shadow-sm rounded-xl"
             >
-              <h3 className="text-xl font-semibold">{b.service?.title}</h3>
-              <p>Date: {new Date(b.date).toLocaleDateString()}</p>
-              <p>
-                Status: <strong>{b.status}</strong>
+              <h2 className="text-xl font-semibold">
+                {b.service?.title || "Service"}
+              </h2>
+
+              <p className="text-gray-700 mt-2">
+                <strong>Status:</strong>{" "}
+                <span className="text-blue-600">{b.status}</span>
               </p>
 
-              {b.status !== "cancelled" && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Cancel Booking
-                </motion.button>
+              <p className="text-gray-700 mt-1">
+                <strong>Date:</strong>{" "}
+                {new Date(b.createdAt).toLocaleDateString()}
+              </p>
+
+              {/* Provider Info */}
+              {b.provider ? (
+                <div className="text-gray-700 mt-1">
+                  <p>
+                    <strong>Provider Name:</strong> {b.provider.name || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Provider Email:</strong> {b.provider.email || "N/A"}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-500 mt-1">
+                  Provider info not available
+                </p>
               )}
-            </motion.div>
-          ))}
-        </div>
-      )}
-    </motion.div>
+
+              
+              {/* Review Form (Only if completed) */}
+              {b.status?.toLowerCase() === "completed" && b.provider?._id && (
+                <ReviewForm
+                  bookingId={b._id}
+                  providerId={b.provider._id}
+                  onSuccess={() => {
+                    alert("Review submitted!");
+                    fetchBookings();
+                  }}
+                />
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Go to Profile button */}
+      <button
+        onClick={() => navigate("/client-dashboard")}
+        className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+      >
+        Back to Profile
+      </button>
+    </div>
   );
-}
+};
 
 export default ClientBookings;

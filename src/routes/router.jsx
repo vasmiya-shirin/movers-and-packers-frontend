@@ -14,7 +14,7 @@ import PaymentSuccess from "../pages/PaymentSuccess";
 import ProviderDashboard from "../pages/ProviderDashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import Unauthorized from "../pages/Unauthorized";
-
+import PendingApproval from "../pages/PendingApproval";
 
 export const router = createBrowserRouter([
   {
@@ -89,6 +89,10 @@ export const router = createBrowserRouter([
             <PaymentSuccess />
           </ProtectedRoutes>
         ),
+      },
+      {
+        path: "/pending-approval",
+        element: <PendingApproval />,
       },
       {
         path: "/provider-dashboard",
