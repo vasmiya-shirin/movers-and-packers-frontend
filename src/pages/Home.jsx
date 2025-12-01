@@ -3,16 +3,16 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       
       {/* ---------- HERO SECTION ---------- */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-20 pb-28 bg-white shadow-sm">
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-20 pb-28 bg-white dark:bg-gray-800 shadow-sm">
         
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-5xl font-extrabold text-gray-900 leading-tight"
+          className="text-5xl font-extrabold text-gray-900 dark:text-white leading-tight"
         >
           Smart Movers & Packers Service
         </motion.h1>
@@ -21,7 +21,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="text-gray-600 text-lg max-w-2xl mt-4"
+          className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mt-4"
         >
           Fast, reliable, and secure moving services. Book trusted professionals and move stress-free.
         </motion.p>
@@ -50,7 +50,7 @@ export default function Home() {
 
       {/* ---------- FEATURES SECTION ---------- */}
       <section className="px-6 py-20">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
           Why Choose Us?
         </h2>
 
@@ -59,11 +59,11 @@ export default function Home() {
           {/* Card 1 */}
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="p-8 bg-white shadow-lg rounded-2xl text-center"
+            className="p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl text-center border border-gray-200 dark:border-gray-700"
           >
             <div className="text-4xl mb-4">🚚</div>
-            <h3 className="font-semibold text-xl">Professional Movers</h3>
-            <p className="text-gray-600 mt-2">
+            <h3 className="font-semibold text-xl dark:text-white">Professional Movers</h3>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
               Verified and trained providers who ensure safe shifting.
             </p>
           </motion.div>
@@ -71,11 +71,11 @@ export default function Home() {
           {/* Card 2 */}
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="p-8 bg-white shadow-lg rounded-2xl text-center"
+            className="p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl text-center border border-gray-200 dark:border-gray-700"
           >
             <div className="text-4xl mb-4">🛡️</div>
-            <h3 className="font-semibold text-xl">Secure Packaging</h3>
-            <p className="text-gray-600 mt-2">
+            <h3 className="font-semibold text-xl dark:text-white">Secure Packaging</h3>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
               High-quality packing materials to protect your belongings.
             </p>
           </motion.div>
@@ -83,11 +83,11 @@ export default function Home() {
           {/* Card 3 */}
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="p-8 bg-white shadow-lg rounded-2xl text-center"
+            className="p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl text-center border border-gray-200 dark:border-gray-700"
           >
             <div className="text-4xl mb-4">⏱️</div>
-            <h3 className="font-semibold text-xl">On-Time Delivery</h3>
-            <p className="text-gray-600 mt-2">
+            <h3 className="font-semibold text-xl dark:text-white">On-Time Delivery</h3>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
               Track your move and enjoy fast deliveries.
             </p>
           </motion.div>
@@ -95,7 +95,7 @@ export default function Home() {
       </section>
 
       {/* ---------- CTA SECTION ---------- */}
-      <section className="py-20 bg-blue-600 text-white text-center">
+      <section className="py-20 bg-blue-600 dark:bg-blue-700 text-white text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -116,7 +116,7 @@ export default function Home() {
         >
           <Link
             to="/register"
-            className="mt-6 inline-block bg-white text-blue-600 px-8 py-3 rounded-xl text-lg font-semibold hover:bg-gray-100 shadow-md"
+            className="mt-6 inline-block bg-white text-blue-600 dark:bg-gray-100 dark:text-blue-800 px-8 py-3 rounded-xl text-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-200 shadow-md"
           >
             Create Account
           </Link>
@@ -126,3 +126,4 @@ export default function Home() {
     </div>
   );
 }
+

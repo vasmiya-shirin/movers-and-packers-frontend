@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import API from "../api/api";
+import API from "../../../api/api";
 import {
   LineChart,
   Line,
@@ -21,25 +21,20 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      // Dashboard stats
       const res = await API.get("/bookings/admin-dashboard");
       setStats(res.data.stats);
       setEarningsHistory(res.data.earningsHistory || []);
       setRecentBookings(res.data.recentBookings || []);
 
-      // All bookings
       const allRes = await API.get("/bookings/all");
       setAllBookings(allRes.data.bookings || []);
 
-      // All services
       const servicesRes = await API.get("/services");
       setAllServices(servicesRes.data || []);
 
-      // All reviews (Admin)
       const reviewsRes = await API.get("/reviews");
       setReviews(reviewsRes.data.reviews || []);
 
-      // Pending providers
       const pendingRes = await API.get("/admin/providers/pending");
       setPendingProviders(pendingRes.data.pendingProviders || []);
     } catch (err) {
@@ -51,7 +46,6 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  // Update Booking Status
   const updateStatus = async (id, status) => {
     try {
       await API.put(`/bookings/${id}`, { status });
@@ -60,6 +54,7 @@ const AdminDashboard = () => {
       console.log("Update Status Error:", err);
     }
   };
+
   const approveProvider = async (id) => {
     try {
       await API.put(`/admin/providers/verify/${id}`, { isVerified: true });
@@ -81,7 +76,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Delete Service
   const deleteService = async (id) => {
     if (!window.confirm("Are you sure you want to delete this service?")) return;
     try {
@@ -94,19 +88,18 @@ const AdminDashboard = () => {
     }
   };
 
-  // Logout
   const logout = () => {
     localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
-  if (!stats) return <p className="p-10">Loading...</p>;
+  if (!stats) return <p className="p-10 dark:text-white">Loading...</p>;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      {/* HEADER + LOGOUT */}
+    <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen dark:text-gray-200">
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold dark:text-white">Admin Dashboard</h1>
         <button
           onClick={logout}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -131,37 +124,31 @@ const AdminDashboard = () => {
       </div>
 
       {/* Pending Providers */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">Pending Providers</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">Pending Providers</h2>
         {pendingProviders.length === 0 ? (
-          <p>No pending providers.</p>
+          <p className="dark:text-gray-300">No pending providers.</p>
         ) : (
           <table className="w-full border-collapse text-center">
             <thead>
-              <tr className="bg-gray-200 border-b">
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Phone</th>
-                <th className="border p-2">Actions</th>
+              <tr className="bg-gray-200 dark:bg-gray-700 border-b">
+                <th className="border p-2 dark:border-gray-600">Name</th>
+                <th className="border p-2 dark:border-gray-600">Email</th>
+                <th className="border p-2 dark:border-gray-600">Phone</th>
+                <th className="border p-2 dark:border-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pendingProviders.map((p) => (
-                <tr key={p._id} className="border-b">
+                <tr key={p._id} className="border-b dark:border-gray-700">
                   <td className="p-2">{p.name}</td>
                   <td className="p-2">{p.email}</td>
                   <td className="p-2">{p.phone}</td>
                   <td className="p-2 space-x-2">
-                    <button
-                      onClick={() => approveProvider(p._id)}
-                      className="px-2 py-1 bg-green-500 text-white rounded"
-                    >
+                    <button className="px-2 py-1 bg-green-500 text-white rounded">
                       Approve
                     </button>
-                    <button
-                      onClick={() => rejectProvider(p._id)}
-                      className="px-2 py-1 bg-red-500 text-white rounded"
-                    >
+                    <button className="px-2 py-1 bg-red-500 text-white rounded">
                       Reject
                     </button>
                   </td>
@@ -173,33 +160,28 @@ const AdminDashboard = () => {
       </div>
 
       {/* Earnings Chart */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">Earnings Overview</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">Earnings Overview</h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={earningsHistory}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
+            <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+            <XAxis dataKey="month" stroke="#e5e7eb" />
+            <YAxis stroke="#e5e7eb" />
             <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke="#2563eb"
-              strokeWidth={3}
-            />
+            <Line type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Recent Bookings */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">Recent Bookings</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">Recent Bookings</h2>
         {recentBookings.length === 0 ? (
-          <p>No recent bookings.</p>
+          <p className="dark:text-gray-300">No recent bookings.</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="text-left border-b">
+              <tr className="text-left border-b dark:border-gray-700">
                 <th className="p-2">Client</th>
                 <th className="p-2">Provider</th>
                 <th className="p-2">Service</th>
@@ -209,11 +191,11 @@ const AdminDashboard = () => {
             </thead>
             <tbody>
               {recentBookings.map((b) => (
-                <tr key={b._id} className="border-b">
+                <tr key={b._id} className="border-b dark:border-gray-700">
                   <td className="p-2">{b.client?.name}</td>
                   <td className="p-2">{b.provider?.name}</td>
                   <td className="p-2">{b.service?.title}</td>
-                  <td className="p-2 text-blue-600">{b.status}</td>
+                  <td className="p-2 text-blue-400">{b.status}</td>
                   <td className="p-2">
                     {new Date(b.createdAt).toLocaleDateString()}
                   </td>
@@ -225,11 +207,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* All Bookings */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">Manage All Bookings</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">Manage All Bookings</h2>
         <table className="w-full border-collapse">
           <thead>
-            <tr className="text-left border-b">
+            <tr className="text-left border-b dark:border-gray-700">
               <th className="p-2">Client</th>
               <th className="p-2">Provider</th>
               <th className="p-2">Service</th>
@@ -239,28 +221,19 @@ const AdminDashboard = () => {
           </thead>
           <tbody>
             {allBookings.map((b) => (
-              <tr key={b._id} className="border-b text-center">
+              <tr key={b._id} className="border-b dark:border-gray-700 text-center">
                 <td className="p-2">{b.client?.name}</td>
                 <td className="p-2">{b.provider?.name}</td>
                 <td className="p-2">{b.service?.title}</td>
-                <td className="p-2 font-semibold">{b.status}</td>
+                <td className="p-2">{b.status}</td>
                 <td className="p-2 space-x-2">
-                  <button
-                    onClick={() => updateStatus(b._id, "Accepted")}
-                    className="px-3 py-1 bg-blue-500 text-white rounded"
-                  >
+                  <button className="px-3 py-1 bg-blue-500 text-white rounded">
                     Accept
                   </button>
-                  <button
-                    onClick={() => updateStatus(b._id, "Completed")}
-                    className="px-3 py-1 bg-green-500 text-white rounded"
-                  >
+                  <button className="px-3 py-1 bg-green-500 text-white rounded">
                     Complete
                   </button>
-                  <button
-                    onClick={() => updateStatus(b._id, "Cancelled")}
-                    className="px-3 py-1 bg-red-500 text-white rounded"
-                  >
+                  <button className="px-3 py-1 bg-red-500 text-white rounded">
                     Cancel
                   </button>
                 </td>
@@ -271,33 +244,35 @@ const AdminDashboard = () => {
       </div>
 
       {/* All Services */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">All Services</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">All Services</h2>
         {allServices.length === 0 ? (
-          <p>No services available.</p>
+          <p className="dark:text-gray-300">No services available.</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-2">Title</th>
-                <th className="border p-2">Provider</th>
-                <th className="border p-2">Price</th>
-                <th className="border p-2">Locations</th>
-                <th className="border p-2">Status</th>
-                <th className="border p-2">Actions</th>
+              <tr className="bg-gray-200 dark:bg-gray-700">
+                <th className="border p-2 dark:border-gray-600">Title</th>
+                <th className="border p-2 dark:border-gray-600">Provider</th>
+                <th className="border p-2 dark:border-gray-600">Price</th>
+                <th className="border p-2 dark:border-gray-600">Locations</th>
+                <th className="border p-2 dark:border-gray-600">Status</th>
+                <th className="border p-2 dark:border-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {allServices.map((s) => (
-                <tr key={s._id} className="text-center border-b">
-                  <td className="border p-2">{s.title}</td>
-                  <td className="border p-2">{s.provider?.name}</td>
-                  <td className="border p-2">₹{s.price}</td>
-                  <td className="border p-2">
+                <tr key={s._id} className="text-center border-b dark:border-gray-700">
+                  <td className="border p-2 dark:border-gray-700">{s.title}</td>
+                  <td className="border p-2 dark:border-gray-700">{s.provider?.name}</td>
+                  <td className="border p-2 dark:border-gray-700">₹{s.price}</td>
+                  <td className="border p-2 dark:border-gray-700">
                     {s.availableLocations.join(", ")}
                   </td>
-                  <td className="border p-2">{s.isActive ? "Active" : "Inactive"}</td>
-                  <td className="border p-2 space-x-2">
+                  <td className="border p-2 dark:border-gray-700">
+                    {s.isActive ? "Active" : "Inactive"}
+                  </td>
+                  <td className="border p-2 space-x-2 dark:border-gray-700">
                     <button className="px-2 py-1 bg-yellow-500 text-white rounded">
                       Edit
                     </button>
@@ -316,25 +291,25 @@ const AdminDashboard = () => {
       </div>
 
       {/* All Reviews */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">All Reviews</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">All Reviews</h2>
         {reviews.length === 0 ? (
-          <p>No reviews submitted yet.</p>
+          <p className="dark:text-gray-300">No reviews submitted yet.</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-200 text-left border-b">
-                <th className="border p-2">Client</th>
-                <th className="border p-2">Provider</th>
-                <th className="border p-2">Booking ID</th>
-                <th className="border p-2">Rating</th>
-                <th className="border p-2">Comment</th>
-                <th className="border p-2">Date</th>
+              <tr className="bg-gray-200 dark:bg-gray-700 text-left border-b dark:border-gray-700">
+                <th className="border p-2 dark:border-gray-700">Client</th>
+                <th className="border p-2 dark:border-gray-700">Provider</th>
+                <th className="border p-2 dark:border-gray-700">Booking ID</th>
+                <th className="border p-2 dark:border-gray-700">Rating</th>
+                <th className="border p-2 dark:border-gray-700">Comment</th>
+                <th className="border p-2 dark:border-gray-700">Date</th>
               </tr>
             </thead>
             <tbody>
               {reviews.map((r) => (
-                <tr key={r._id} className="border-b">
+                <tr key={r._id} className="border-b dark:border-gray-700">
                   <td className="p-2">{r.client?.name}</td>
                   <td className="p-2">{r.provider?.name}</td>
                   <td className="p-2">{r.booking}</td>
@@ -353,13 +328,11 @@ const AdminDashboard = () => {
   );
 };
 
-// Simple Card component
 const Card = ({ title, value }) => (
-  <div className="bg-white shadow p-6 rounded-xl">
-    <p className="text-gray-500">{title}</p>
-    <p className="text-3xl font-bold mt-2">{value}</p>
+  <div className="bg-white dark:bg-gray-800 shadow p-6 rounded-xl">
+    <p className="text-gray-600 dark:text-gray-300">{title}</p>
+    <p className="text-3xl font-bold mt-2 dark:text-white">{value}</p>
   </div>
 );
 
 export default AdminDashboard;
-

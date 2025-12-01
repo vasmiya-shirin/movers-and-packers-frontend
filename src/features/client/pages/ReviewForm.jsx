@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API from "../api/api";
+import API from "../../../api/api";
 import { FaStar } from "react-icons/fa";
 
 const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
@@ -42,13 +42,17 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
   return (
     <form
       onSubmit={submitReview}
-      className="bg-white shadow-md p-6 rounded-xl border mt-6"
+      className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl border mt-6"
     >
-      <h2 className="text-xl font-semibold mb-4">Leave a Review</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        Leave a Review
+      </h2>
 
       {/* ⭐ STAR RATING ⭐ */}
       <div className="mb-4">
-        <label className="block mb-2 font-medium">Rating</label>
+        <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+          Rating
+        </label>
 
         <div className="flex gap-2 text-2xl">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -56,9 +60,7 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
               key={star}
               size={28}
               className="cursor-pointer transition-transform duration-150"
-              color={
-                (hover || rating) >= star ? "#facc15" : "#d1d5db"
-              }
+              color={(hover || rating) >= star ? "#facc15" : "#d1d5db"}
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(null)}
               onClick={() => setRating(star)}
@@ -69,11 +71,13 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
 
       {/* COMMENT */}
       <div className="mb-4">
-        <label className="block mb-2 font-medium">Your Feedback</label>
+        <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+          Your Feedback
+        </label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-300 transition"
+          className="border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-300 transition"
           placeholder="Share your experience..."
           rows={4}
         />
@@ -83,7 +87,7 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
       <button
         disabled={loading}
         className={`w-full py-2 rounded-lg text-white font-medium transition 
-          ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+          ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}`}
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>

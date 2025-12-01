@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API from "../api/api";
+import API from "../../../api/api";
 
 const daysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 

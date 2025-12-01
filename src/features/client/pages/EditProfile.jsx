@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import API from "../api/api";
+import API from "../../../api/api";
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -31,45 +31,53 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="p-10 bg-gray-100 min-h-screen">
-      <div className="bg-white p-8 rounded-xl shadow-md max-w-xl mx-auto">
-        <h1 className="text-2xl font-semibold mb-6">Edit Profile</h1>
+    <div className="p-10 bg-gray-100 dark:bg-gray-900 min-h-screen">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md max-w-xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">
+          Edit Profile
+        </h1>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label className="block font-medium">Name</label>
+            <label className="block font-medium text-gray-700 dark:text-gray-300">
+              Name
+            </label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border rounded-lg"
+              className="w-full mt-1 p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block font-medium">Phone</label>
+            <label className="block font-medium text-gray-700 dark:text-gray-300">
+              Phone
+            </label>
             <input
               name="phone"
               value={form.phone}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border rounded-lg"
+              className="w-full mt-1 p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
           <div>
-            <label className="block font-medium">Address</label>
+            <label className="block font-medium text-gray-700 dark:text-gray-300">
+              Address
+            </label>
             <textarea
               name="address"
               value={form.address}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border rounded-lg"
+              className="w-full mt-1 p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="w-full py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg transition"
           >
             Save Changes
           </button>

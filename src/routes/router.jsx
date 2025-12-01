@@ -1,20 +1,20 @@
 import { createBrowserRouter } from "react-router-dom";
 import Home from "../pages/Home";
 import UserLayout from "../layout/UserLayout";
-import Register from "../pages/Register";
-import Login from "../pages/Login";
+import Register from "../features/auth/pages/Register";
+import Login from "../features/auth/pages/Login";
 import ProtectedRoutes from "./ProtectedRoutes";
-import ClientDashboard from "../pages/ClientDashboard";
-import ClientBookings from "../pages/ClientBookings";
-import EditProfile from "../pages/EditProfile";
-import ServicesList from "../pages/ServiceList";
-import BookService from "../pages/BookService";
-import ServiceDetails from "../pages/ServiceDetails";
+import ClientDashboard from "../features/client/pages/ClientDashboard";
+import ClientBookings from "../features/client/pages/ClientBookings";
+import EditProfile from "../features/client/pages/EditProfile";
+import ServiceList from "../features/services/pages/ServiceList";
+import BookService from "../features/services/pages/BookService";
+import ServiceDetails from "../features/services/pages/ServiceDetails";
 import PaymentSuccess from "../pages/PaymentSuccess";
-import ProviderDashboard from "../pages/ProviderDashboard";
-import AdminDashboard from "../pages/AdminDashboard";
+import ProviderDashboard from "../features/provider/pages/ProviderDashboard";
+import AdminDashboard from "../features/admin/pages/AdminDashboard";
 import Unauthorized from "../pages/Unauthorized";
-import PendingApproval from "../pages/PendingApproval";
+import PendingApproval from "../features/admin/pages/PendingApproval";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 
@@ -72,7 +72,7 @@ export const router = createBrowserRouter([
         path: "/services",
         element: (
           <ProtectedRoutes>
-            <ServicesList />
+            <ServiceList />
           </ProtectedRoutes>
         ),
       },
