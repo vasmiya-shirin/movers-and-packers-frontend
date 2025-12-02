@@ -17,6 +17,9 @@ import Unauthorized from "../pages/Unauthorized";
 import PendingApproval from "../features/admin/pages/PendingApproval";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import EditService from "../features/services/pages/EditService";
+import CompletedBookings from "../features/services/pages/CompletedBookings";
+import AdminInbox from "../features/admin/pages/AdminInbox";
 
 export const router = createBrowserRouter([
   {
@@ -117,6 +120,30 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoutes allowedRoles={["admin"]}>
             <AdminDashboard />
+          </ProtectedRoutes>
+        ),
+      },
+      {
+        path: "/admin/services/edit/:id",
+        element: (
+          <ProtectedRoutes allowedRoles={["admin","provider"]}>
+            <EditService />
+          </ProtectedRoutes>
+        ),
+      },
+        {
+        path: "/admin/contact-messages",
+        element: (
+          <ProtectedRoutes >
+            <AdminInbox />
+          </ProtectedRoutes>
+        ),
+      },
+      {
+        path: "/client/completed-bookings",
+        element: (
+          <ProtectedRoutes>
+            <CompletedBookings />
           </ProtectedRoutes>
         ),
       },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
 import {
   LineChart,
@@ -18,6 +19,9 @@ const AdminDashboard = () => {
   const [allServices, setAllServices] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [pendingProviders, setPendingProviders] = useState([]);
+  const [contactMessages, setContactMessages] = useState([]);
+
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -37,6 +41,9 @@ const AdminDashboard = () => {
 
       const pendingRes = await API.get("/admin/providers/pending");
       setPendingProviders(pendingRes.data.pendingProviders || []);
+
+      const contactRes = await API.get("/contact/admin/all"); // your backend route
+      setContactMessages(contactRes.data || []);
     } catch (err) {
       console.log("Admin Dashboard Error:", err);
     }
@@ -49,7 +56,14 @@ const AdminDashboard = () => {
   const updateStatus = async (id, status) => {
     try {
       await API.put(`/bookings/${id}`, { status });
-      fetchData();
+
+      // Remove cancelled booking from the list immediately
+      if (status === "Cancelled") {
+        setAllBookings((prev) => prev.filter((b) => b._id !== id));
+      } else {
+        // For other status updates, you can keep it and refresh if needed
+        fetchData();
+      }
     } catch (err) {
       console.log("Update Status Error:", err);
     }
@@ -66,7 +80,8 @@ const AdminDashboard = () => {
   };
 
   const rejectProvider = async (id) => {
-    if (!window.confirm("Are you sure you want to reject this provider?")) return;
+    if (!window.confirm("Are you sure you want to reject this provider?"))
+      return;
     try {
       await API.delete(`/admin/providers/${id}`);
       alert("Provider rejected!");
@@ -77,7 +92,8 @@ const AdminDashboard = () => {
   };
 
   const deleteService = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this service?")) return;
+    if (!window.confirm("Are you sure you want to delete this service?"))
+      return;
     try {
       await API.delete(`/services/${id}`);
       alert("Service deleted successfully");
@@ -125,7 +141,9 @@ const AdminDashboard = () => {
 
       {/* Pending Providers */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">Pending Providers</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Pending Providers
+        </h2>
         {pendingProviders.length === 0 ? (
           <p className="dark:text-gray-300">No pending providers.</p>
         ) : (
@@ -145,10 +163,16 @@ const AdminDashboard = () => {
                   <td className="p-2">{p.email}</td>
                   <td className="p-2">{p.phone}</td>
                   <td className="p-2 space-x-2">
-                    <button className="px-2 py-1 bg-green-500 text-white rounded">
+                    <button
+                      onClick={() => approveProvider(p._id)}
+                      className="px-2 py-1 bg-green-500 text-white rounded"
+                    >
                       Approve
                     </button>
-                    <button className="px-2 py-1 bg-red-500 text-white rounded">
+                    <button
+                      onClick={() => rejectProvider(p._id)}
+                      className="px-2 py-1 bg-red-500 text-white rounded"
+                    >
                       Reject
                     </button>
                   </td>
@@ -161,21 +185,30 @@ const AdminDashboard = () => {
 
       {/* Earnings Chart */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">Earnings Overview</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Earnings Overview
+        </h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={earningsHistory}>
             <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
             <XAxis dataKey="month" stroke="#e5e7eb" />
             <YAxis stroke="#e5e7eb" />
             <Tooltip />
-            <Line type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} />
+            <Line
+              type="monotone"
+              dataKey="amount"
+              stroke="#2563eb"
+              strokeWidth={3}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Recent Bookings */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">Recent Bookings</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Recent Bookings
+        </h2>
         {recentBookings.length === 0 ? (
           <p className="dark:text-gray-300">No recent bookings.</p>
         ) : (
@@ -208,7 +241,9 @@ const AdminDashboard = () => {
 
       {/* All Bookings */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">Manage All Bookings</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Manage All Bookings
+        </h2>
         <table className="w-full border-collapse">
           <thead>
             <tr className="text-left border-b dark:border-gray-700">
@@ -221,19 +256,33 @@ const AdminDashboard = () => {
           </thead>
           <tbody>
             {allBookings.map((b) => (
-              <tr key={b._id} className="border-b dark:border-gray-700 text-center">
+              <tr
+                key={b._id}
+                className="border-b dark:border-gray-700 text-center"
+              >
                 <td className="p-2">{b.client?.name}</td>
                 <td className="p-2">{b.provider?.name}</td>
                 <td className="p-2">{b.service?.title}</td>
                 <td className="p-2">{b.status}</td>
                 <td className="p-2 space-x-2">
-                  <button className="px-3 py-1 bg-blue-500 text-white rounded">
+                  <button
+                    onClick={() => updateStatus(b._id, "Accepted")}
+                    className="px-3 py-1 bg-blue-500 text-white rounded"
+                  >
                     Accept
                   </button>
-                  <button className="px-3 py-1 bg-green-500 text-white rounded">
+                  <button
+                    onClick={() => updateStatus(b._id, "Completed")}
+                    disabled={b.status === "Completed"}
+                    className="px-3 py-1 bg-green-500 text-white rounded disabled:opacity-50"
+                  >
                     Complete
                   </button>
-                  <button className="px-3 py-1 bg-red-500 text-white rounded">
+
+                  <button
+                    onClick={() => updateStatus(b._id, "Cancelled")}
+                    className="px-3 py-1 bg-red-500 text-white rounded"
+                  >
                     Cancel
                   </button>
                 </td>
@@ -245,7 +294,9 @@ const AdminDashboard = () => {
 
       {/* All Services */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">All Services</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          All Services
+        </h2>
         {allServices.length === 0 ? (
           <p className="dark:text-gray-300">No services available.</p>
         ) : (
@@ -262,10 +313,17 @@ const AdminDashboard = () => {
             </thead>
             <tbody>
               {allServices.map((s) => (
-                <tr key={s._id} className="text-center border-b dark:border-gray-700">
+                <tr
+                  key={s._id}
+                  className="text-center border-b dark:border-gray-700"
+                >
                   <td className="border p-2 dark:border-gray-700">{s.title}</td>
-                  <td className="border p-2 dark:border-gray-700">{s.provider?.name}</td>
-                  <td className="border p-2 dark:border-gray-700">₹{s.price}</td>
+                  <td className="border p-2 dark:border-gray-700">
+                    {s.provider?.name}
+                  </td>
+                  <td className="border p-2 dark:border-gray-700">
+                    ₹{s.price}
+                  </td>
                   <td className="border p-2 dark:border-gray-700">
                     {s.availableLocations.join(", ")}
                   </td>
@@ -273,7 +331,10 @@ const AdminDashboard = () => {
                     {s.isActive ? "Active" : "Inactive"}
                   </td>
                   <td className="border p-2 space-x-2 dark:border-gray-700">
-                    <button className="px-2 py-1 bg-yellow-500 text-white rounded">
+                    <button
+                      onClick={() => navigate(`/admin/services/edit/${s._id}`)}
+                      className="px-2 py-1 bg-yellow-500 text-white rounded"
+                    >
                       Edit
                     </button>
                     <button
@@ -292,7 +353,9 @@ const AdminDashboard = () => {
 
       {/* All Reviews */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">All Reviews</h2>
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          All Reviews
+        </h2>
         {reviews.length === 0 ? (
           <p className="dark:text-gray-300">No reviews submitted yet.</p>
         ) : (
@@ -317,6 +380,39 @@ const AdminDashboard = () => {
                   <td className="p-2">{r.comment}</td>
                   <td className="p-2">
                     {new Date(r.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Contact Messages */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Contact Messages
+        </h2>
+        {contactMessages.length === 0 ? (
+          <p className="dark:text-gray-300">No contact messages yet.</p>
+        ) : (
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="bg-gray-200 dark:bg-gray-700 border-b">
+                <th className="border p-2 dark:border-gray-600">Name</th>
+                <th className="border p-2 dark:border-gray-600">Email</th>
+                <th className="border p-2 dark:border-gray-600">Message</th>
+                <th className="border p-2 dark:border-gray-600">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contactMessages.map((msg) => (
+                <tr key={msg._id} className="border-b dark:border-gray-700">
+                  <td className="p-2">{msg.name}</td>
+                  <td className="p-2">{msg.email}</td>
+                  <td className="p-2">{msg.message}</td>
+                  <td className="p-2">
+                    {new Date(msg.createdAt).toLocaleString()}
                   </td>
                 </tr>
               ))}

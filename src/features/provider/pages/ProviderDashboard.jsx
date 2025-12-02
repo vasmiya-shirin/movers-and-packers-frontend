@@ -14,8 +14,10 @@ import AddServiceForm from "../../services/pages/AddServiceForm";
 import VerificationUpload from "./VerificationUpload";
 import AvailabilityForm from "../../provider/pages/AvailabilityForm";
 import ChatBox from "../../../components/ChatBox";
+import { useNavigate } from "react-router-dom";
 
 const ProviderDashboard = () => {
+ const navigate=useNavigate();
   const [provider, setProvider] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
@@ -226,9 +228,12 @@ const ProviderDashboard = () => {
                       {s.availableLocations.join(", ")}
                     </td>
                     <td className="border p-2 space-x-2">
-                      <button className="px-2 py-1 bg-yellow-500 text-white rounded">
-                        Edit
-                      </button>
+                      <button
+                      onClick={() => navigate(`/admin/services/edit/${s._id}`)}
+                      className="px-2 py-1 bg-yellow-500 text-white rounded"
+                    >
+                      Edit
+                    </button>
                       <button className="px-2 py-1 bg-red-600 text-white rounded">
                         Delete
                       </button>

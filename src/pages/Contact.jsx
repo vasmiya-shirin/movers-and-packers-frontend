@@ -1,4 +1,40 @@
+import { useState } from "react";
+import API from "../api/api";
+
 export default function Contact() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !message) {
+      return alert("Please fill all fields");
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await API.post("/contact/send", {
+        name,
+        email,
+        message,
+      });
+
+      alert("Message sent successfully!");
+      setName("");
+      setEmail("");
+      setMessage("");
+
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="max-w-4xl mx-auto">
@@ -18,29 +54,36 @@ export default function Contact() {
 
         <h2 className="text-2xl font-semibold mt-10 mb-4">Send a Message</h2>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSend}>
           <input
             type="text"
             placeholder="Your Name"
             className="w-full p-3 rounded border dark:bg-gray-800 dark:border-gray-700"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
 
           <input
             type="email"
             placeholder="Your Email"
             className="w-full p-3 rounded border dark:bg-gray-800 dark:border-gray-700"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <textarea
             placeholder="Your Message"
             rows="5"
             className="w-full p-3 rounded border dark:bg-gray-800 dark:border-gray-700"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           ></textarea>
 
           <button
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            disabled={loading}
           >
-            Send Message
+            {loading ? "Sending..." : "Send Message"}
           </button>
         </form>
       </div>

@@ -26,40 +26,56 @@ const BookService = () => {
   }, [serviceId]);
 
   const handleBooking = async () => {
-    if (!date) return alert("Please select a date!");
-    if (!pickupLocation || !dropLocation)
-      return alert("Please enter pickup & drop locations");
+  if (!date) return alert("Please select a date!");
+  if (!pickupLocation || !dropLocation)
+    return alert("Please enter pickup & drop locations");
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const bookingRes = await API.post("/bookings", {
-        service: serviceId,
-        pickupLocation,
-        dropLocation,
-        date,
-        totalPrice: service.price,
-      });
+  try {
+    // 1️⃣ Create Booking
+    const bookingRes = await API.post("/bookings", {
+      service: serviceId,
+      pickupLocation,
+      dropLocation,
+      date,
+      totalPrice: service.price,
+    });
 
-      const booking = bookingRes.data.booking;
+    const booking = bookingRes.data.booking;
 
-      const stripeRes = await API.post("/payments/create-checkout-session", {
-        bookingId: booking._id,
-        amount: service.price,
-        serviceName: service.title,
-      });
+    // 2️⃣ Create Stripe Checkout Session
+    const stripeRes = await API.post("/payments/create-checkout-session", {
+      bookingId: booking._id,
+      amount: service.price,
+      serviceName: service.title,
+    });
 
-      window.location.href = stripeRes.data.url;
-    } catch (err) {
-      console.log("Booking error:", err.response?.data || err.message);
-      alert(
-        err.response?.data?.message ||
-          "Something went wrong while booking the service."
-      );
-    } finally {
-      setLoading(false);
+    window.location.href = stripeRes.data.url;
+
+  } catch (err) {
+    const msg = err?.response?.data?.message;
+
+    console.log("Booking error:", msg || err.message);
+
+    // 🔥 If payment is not allowed yet (service not completed)
+    if (msg === "Payment is allowed only for completed services.") {
+      alert(msg);
+
+      // 👉 REDIRECT to Completed Services page
+      navigate("/client/completed-bookings");
+
+      return;
     }
-  };
+
+    // Default error
+    alert(msg || "Something went wrong while booking the service.");
+
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!service)
     return <p className="p-10 text-gray-700 dark:text-gray-300">Loading service...</p>;
