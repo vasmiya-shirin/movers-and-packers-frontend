@@ -122,7 +122,6 @@ export default function Home() {
           </Link>
         </motion.div>
       </section>
-
     </div>
   );
 }
