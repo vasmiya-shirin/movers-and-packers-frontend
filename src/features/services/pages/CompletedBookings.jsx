@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import API from "../../../api/api";
+import { useNavigate } from "react-router-dom";
 
 const CompletedBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate=useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -58,6 +60,12 @@ const CompletedBookings = () => {
           </div>
         ))}
       </div>
+      <button
+        onClick={() => navigate("/client-dashboard")}
+        className="mt-6 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition"
+      >
+        Back to Profile
+      </button>
     </div>
   );
 };
