@@ -33,7 +33,6 @@ const Login = () => {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-96 border dark:border-gray-700">
-        
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
           Login
         </h2>
@@ -64,6 +63,12 @@ const Login = () => {
             Login
           </button>
         </form>
+        <p
+          onClick={() => navigate("/forgot-password")}
+          className="text-sm text-blue-600 dark:text-blue-400 cursor-pointer mt-1 text-right hover:underline"
+        >
+          Forgot Password?
+        </p>
 
         {message && (
           <p className="text-center mt-4 text-gray-700 dark:text-gray-300">
@@ -86,4 +91,3 @@ const Login = () => {
 };
 
 export default Login;
-

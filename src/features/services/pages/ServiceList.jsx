@@ -41,6 +41,14 @@ const ServiceList = () => {
               {service.description.slice(0, 60)}...
             </p>
 
+            {/* ✅ AVAILABLE LOCATIONS */}
+            <p className="mt-3 text-gray-700 dark:text-gray-300 text-sm">
+              <strong>Available Locations:</strong>{" "}
+              {service.availableLocations?.length > 0
+                ? service.availableLocations.join(", ")
+                : "Not provided"}
+            </p>
+
             <p className="font-bold mt-4 text-blue-600 dark:text-blue-400">
               ₹ {service.price}
             </p>
@@ -52,6 +60,3 @@ const ServiceList = () => {
 };
 
 export default ServiceList;
-
-
-

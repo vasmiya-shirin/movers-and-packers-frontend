@@ -1,20 +1,36 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
 
 const EditProfile = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
     address: "",
+    profilePic: "",
   });
 
+  const [imagePreview, setImagePreview] = useState("");
+  const [file, setFile] = useState(null);
+
+  // Fetch existing profile
   const fetchProfile = async () => {
-    const res = await API.get("/users/profile");
-    setForm({
-      name: res.data.name,
-      phone: res.data.phone || "",
-      address: res.data.address || "",
-    });
+    try {
+      const res = await API.get("/users/profile");
+
+      setForm({
+        name: res.data.name,
+        phone: res.data.phone || "",
+        address: res.data.address || "",
+        profilePic: res.data.profilePic || "",
+      });
+
+      setImagePreview(res.data.profilePic);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
   };
 
   useEffect(() => {
@@ -24,10 +40,63 @@ const EditProfile = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Image select
+  const handleImageChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+    setImagePreview(URL.createObjectURL(selectedFile));
+  };
+
+  // Cloudinary upload
+  const uploadToCloudinary = async () => {
+    if (!file) return form.profilePic; // no new file chosen
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: data }
+      );
+
+      const json = await res.json();
+
+      if (!json.secure_url) {
+        console.error("Cloudinary Upload Error:", json);
+        alert("Image upload failed. Check console for details.");
+        return form.profilePic;
+      }
+
+      return json.secure_url;
+    } catch (err) {
+      console.error("Cloudinary Error:", err);
+      alert("Image upload failed.");
+      return form.profilePic;
+    }
+  };
+
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await API.put("/users/edit-profile", form);
-    alert("Profile updated successfully!");
+
+    try {
+      let uploadedUrl = await uploadToCloudinary();
+
+      await API.put("/users/edit-profile", {
+        ...form,
+        profilePic: uploadedUrl,
+      });
+
+      alert("Profile updated successfully!");
+      navigate("/client-dashboard"); 
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Something went wrong. Try again.");
+    }
   };
 
   return (
@@ -38,6 +107,34 @@ const EditProfile = () => {
         </h1>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Profile Picture */}
+          <div>
+            <label className="block font-medium text-gray-700 dark:text-gray-300">
+              Profile Picture
+            </label>
+
+            <div className="flex items-center gap-4 mt-2">
+              <img
+                src={imagePreview || "/default-avatar.png"}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border"
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="block w-full text-sm text-gray-500 
+                file:mr-4 file:py-2 file:px-4 
+                file:rounded-full file:border-0 
+                file:text-sm file:font-semibold 
+                file:bg-blue-50 file:text-blue-700 
+                hover:file:bg-blue-100"
+              />
+            </div>
+          </div>
+
+          {/* Name */}
           <div>
             <label className="block font-medium text-gray-700 dark:text-gray-300">
               Name
@@ -51,6 +148,7 @@ const EditProfile = () => {
             />
           </div>
 
+          {/* Phone */}
           <div>
             <label className="block font-medium text-gray-700 dark:text-gray-300">
               Phone
@@ -63,6 +161,7 @@ const EditProfile = () => {
             />
           </div>
 
+          {/* Address */}
           <div>
             <label className="block font-medium text-gray-700 dark:text-gray-300">
               Address
@@ -88,3 +187,4 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+

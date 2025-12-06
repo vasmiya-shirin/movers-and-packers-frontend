@@ -184,25 +184,30 @@ const AdminDashboard = () => {
       </div>
 
       {/* Earnings Chart */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold dark:text-white mb-4">
-          Earnings Overview
-        </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={earningsHistory}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
-            <XAxis dataKey="month" stroke="#e5e7eb" />
-            <YAxis stroke="#e5e7eb" />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke="#2563eb"
-              strokeWidth={3}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+<div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+  <h2 className="text-xl font-semibold dark:text-white mb-4">Earnings Overview</h2>
+
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart
+      data={earningsHistory.map((item) => ({
+        ...item,
+        amount: Number(item.amount) || 0, // ensure numeric
+      }))}
+    >
+      <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+      <XAxis dataKey="month" stroke="#e5e7eb" />
+      <YAxis stroke="#e5e7eb" />
+      <Tooltip formatter={(value) => `₹${value}`} />
+      <Line
+        type="monotone"
+        dataKey="amount"
+        stroke="#2563eb"
+        strokeWidth={3}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
+
 
       {/* Recent Bookings */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">

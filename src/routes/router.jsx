@@ -20,6 +20,8 @@ import Contact from "../pages/Contact";
 import EditService from "../features/services/pages/EditService";
 import CompletedBookings from "../features/services/pages/CompletedBookings";
 import AdminInbox from "../features/admin/pages/AdminInbox";
+import ForgotPassword from "../features/auth/pages/ForgotPassword";
+import ResetPassword from "../features/auth/pages/ResetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +48,14 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "/reset-password/:token",
+        element: <ResetPassword />,
       },
       {
         path: "/client-dashboard",

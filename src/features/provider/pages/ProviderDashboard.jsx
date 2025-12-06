@@ -12,7 +12,6 @@ import {
 
 import AddServiceForm from "../../services/pages/AddServiceForm";
 import VerificationUpload from "./VerificationUpload";
-import AvailabilityForm from "../../provider/pages/AvailabilityForm";
 import ChatBox from "../../../components/ChatBox";
 import { useNavigate } from "react-router-dom";
 
@@ -148,12 +147,6 @@ const ProviderDashboard = () => {
           ) : (
             <VerificationUpload onUploaded={fetchProviderData} />
           )}
-        </div>
-
-        {/* AVAILABILITY */}
-        <div className="bg-white dark:bg-gray-800 dark:text-white shadow p-6 rounded-xl mb-6">
-          <h2 className="text-xl font-bold mb-4">Set Availability</h2>
-          <AvailabilityForm provider={provider} onUpdated={fetchProviderData} />
         </div>
 
         {/* STATS */}
