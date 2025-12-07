@@ -5,21 +5,24 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
       const res = await API.post("/users/login", form);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
+
       setMessage("Login successful!");
 
       if (res.data.role === "client") navigate("/client-dashboard");
@@ -27,22 +30,24 @@ const Login = () => {
       else if (res.data.role === "admin") navigate("/admin-dashboard");
     } catch (error) {
       setMessage(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-96 border dark:border-gray-700">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all p-4">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-full max-w-md border dark:border-gray-700">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
           Login
         </h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             name="email"
             placeholder="Email"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             onChange={handleChange}
             required
           />
@@ -51,21 +56,27 @@ const Login = () => {
             type="password"
             name="password"
             placeholder="Password"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             onChange={handleChange}
             required
           />
 
           <button
             type="submit"
-            className="w-full bg-green-600 dark:bg-green-700 text-white py-3 rounded hover:bg-green-700 dark:hover:bg-green-800 transition"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg font-medium text-white transition
+              ${loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+              }`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
         <p
           onClick={() => navigate("/forgot-password")}
-          className="text-sm text-blue-600 dark:text-blue-400 cursor-pointer mt-1 text-right hover:underline"
+          className="text-sm text-blue-600 dark:text-blue-400 cursor-pointer mt-2 text-right hover:underline"
         >
           Forgot Password?
         </p>
@@ -80,7 +91,7 @@ const Login = () => {
           Don’t have an account?{" "}
           <a
             href="/register"
-            className="text-blue-600 dark:text-blue-400 font-bold"
+            className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
           >
             Register
           </a>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
 import ChatBox from "../../../components/ChatBox";
+import { HiMenu, HiX } from "react-icons/hi";
 
 const ClientDashboard = () => {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ const ClientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchProfile = async () => {
     try {
@@ -53,20 +55,32 @@ const ClientDashboard = () => {
 
   if (loading) {
     return (
-      <p className="text-center mt-10 text-lg dark:text-gray-200">
+      <p className="text-center mt-20 text-lg dark:text-gray-200">
         Loading Dashboard...
       </p>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex relative">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col lg:flex-row">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 shadow-md p-6 border-r border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-semibold mb-8 dark:text-white">
-          Client Menu
-        </h2>
-        <ul className="space-y-3">
+      <aside
+        className={`fixed lg:static top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-md border-r border-gray-200 dark:border-gray-700 transform lg:translate-x-0 transition-transform z-50 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="p-6 flex justify-between items-center lg:block">
+          <h2 className="text-2xl font-semibold mb-8 dark:text-white">
+            Client Menu
+          </h2>
+          <button
+            className="lg:hidden text-gray-800 dark:text-gray-200"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <HiX size={24} />
+          </button>
+        </div>
+        <ul className="space-y-3 px-6 lg:px-0">
           <li
             className="p-3 bg-blue-600 text-white font-medium rounded-lg cursor-pointer hover:bg-blue-700 transition"
             onClick={() => navigate("/client-dashboard")}
@@ -100,44 +114,50 @@ const ClientDashboard = () => {
         </ul>
       </aside>
 
+      {/* Mobile Menu Button */}
+      <div className="lg:hidden p-4 bg-gray-100 dark:bg-gray-900 flex justify-between items-center">
+        <h1 className="text-xl font-semibold dark:text-white">Dashboard</h1>
+        <button
+          className="text-gray-800 dark:text-gray-200"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <HiMenu size={24} />
+        </button>
+      </div>
+
       {/* Main Content */}
-      <main className="flex-1 p-10">
-        <h1 className="text-3xl font-semibold mb-10 dark:text-white">
+      <main className="flex-1 p-6 lg:p-10 lg:ml-64 space-y-10">
+        <h1 className="text-3xl font-semibold dark:text-white">
           Welcome, {user?.name}
         </h1>
 
         {/* Profile Card */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 max-w-3xl">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">
-            Your Profile
-          </h2>
-          <div className="flex items-center gap-6">
-            <img
-              src={user?.profilePic || "https://via.placeholder.com/120"}
-              className="w-28 h-28 rounded-full border shadow-sm object-cover"
-              alt="Profile"
-            />
-            <div className="grid grid-cols-2 gap-y-2 text-gray-800 dark:text-gray-300">
-              <p>
-                <span className="font-medium">Name:</span> {user?.name}
-              </p>
-              <p>
-                <span className="font-medium">Email:</span> {user?.email}
-              </p>
-              <p>
-                <span className="font-medium">Phone:</span>{" "}
-                {user?.phone || "Not Added"}
-              </p>
-              <p>
-                <span className="font-medium">Address:</span>{" "}
-                {user?.address || "Not Added"}
-              </p>
-            </div>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row items-center gap-6 max-w-4xl">
+          <img
+            src={user?.profilePic || "https://via.placeholder.com/120"}
+            className="w-28 h-28 rounded-full border shadow-sm object-cover"
+            alt="Profile"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 dark:text-gray-300 w-full">
+            <p>
+              <span className="font-medium">Name:</span> {user?.name}
+            </p>
+            <p>
+              <span className="font-medium">Email:</span> {user?.email}
+            </p>
+            <p>
+              <span className="font-medium">Phone:</span>{" "}
+              {user?.phone || "Not Added"}
+            </p>
+            <p>
+              <span className="font-medium">Address:</span>{" "}
+              {user?.address || "Not Added"}
+            </p>
           </div>
         </div>
 
         {/* Recent Bookings Section */}
-        <div className="mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 max-w-3xl">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-4xl">
           <h2 className="text-xl font-semibold mb-4 dark:text-white">
             Recent Bookings
           </h2>
@@ -151,7 +171,7 @@ const ClientDashboard = () => {
               {bookings.map((booking) => (
                 <li
                   key={booking._id}
-                  className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                   onClick={() => setSelectedBooking(booking)}
                 >
                   <p>
@@ -203,7 +223,7 @@ const ClientDashboard = () => {
         <ChatBox
           booking={selectedBooking}
           onClose={() => setSelectedBooking(null)}
-          currentUser={user} // pass logged-in client
+          currentUser={user}
         />
       )}
     </div>

@@ -14,6 +14,7 @@ const Register = () => {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,6 +27,8 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
       const formData = new FormData();
@@ -35,30 +38,30 @@ const Register = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setMessage("Registration Successful!");
-
-      setTimeout(() => navigate("/login"), 1000);
+      setMessage("Registration successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      setMessage(error.response?.data?.message || "Registration Failed");
+      setMessage(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-96 border dark:border-gray-700 transition">
-        
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 p-4 transition-all">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-full max-w-md border dark:border-gray-700 transition">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
           Create Account
         </h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
             placeholder="Full Name"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.name}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
 
@@ -66,9 +69,9 @@ const Register = () => {
             type="email"
             name="email"
             placeholder="Email"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.email}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
 
@@ -76,9 +79,9 @@ const Register = () => {
             type="password"
             name="password"
             placeholder="Password"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.password}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
 
@@ -86,16 +89,16 @@ const Register = () => {
             type="text"
             name="phone"
             placeholder="Phone"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.phone}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <select
             name="role"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.role}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="client">Client</option>
             <option value="provider">Service Provider</option>
@@ -105,25 +108,28 @@ const Register = () => {
             type="text"
             name="address"
             placeholder="Address"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
+            value={form.address}
             onChange={handleChange}
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <input
             type="file"
             name="profilePic"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 
-              dark:border-gray-600 dark:text-white"
             onChange={handleFileChange}
+            className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 dark:bg-blue-700 text-white py-3 rounded 
-              hover:bg-blue-700 dark:hover:bg-blue-800 transition"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg text-white font-medium transition
+              ${loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              }`}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
@@ -135,7 +141,10 @@ const Register = () => {
 
         <p className="text-center text-sm mt-4 text-gray-700 dark:text-gray-300">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 dark:text-blue-400 font-bold">
+          <a
+            href="/login"
+            className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
+          >
             Login
           </a>
         </p>

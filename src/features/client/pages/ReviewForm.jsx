@@ -19,14 +19,12 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
     setLoading(true);
 
     try {
-      const res = await API.post("/reviews", {
+      await API.post("/reviews", {
         booking: bookingId,
         provider: providerId,
         rating,
         comment,
       });
-
-      console.log("Review Submitted:", res.data);
 
       setComment("");
       setRating(5);
@@ -42,24 +40,23 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
   return (
     <form
       onSubmit={submitReview}
-      className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl border mt-6"
+      className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl border mt-6 transition-colors"
     >
       <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
         Leave a Review
       </h2>
 
-      {/* ⭐ STAR RATING ⭐ */}
+      {/* Star Rating */}
       <div className="mb-4">
         <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
           Rating
         </label>
-
-        <div className="flex gap-2 text-2xl">
+        <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <FaStar
               key={star}
               size={28}
-              className="cursor-pointer transition-transform duration-150"
+              className="cursor-pointer transform transition duration-150 hover:scale-110"
               color={(hover || rating) >= star ? "#facc15" : "#d1d5db"}
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(null)}
@@ -69,7 +66,7 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
         </div>
       </div>
 
-      {/* COMMENT */}
+      {/* Comment */}
       <div className="mb-4">
         <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
           Your Feedback
@@ -77,17 +74,21 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-300 transition"
           placeholder="Share your experience..."
           rows={4}
+          className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-400 transition"
         />
       </div>
 
-      {/* SUBMIT BUTTON */}
+      {/* Submit Button */}
       <button
+        type="submit"
         disabled={loading}
-        className={`w-full py-2 rounded-lg text-white font-medium transition 
-          ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}`}
+        className={`w-full py-3 rounded-lg font-medium text-white transition 
+          ${loading 
+            ? "bg-gray-400 cursor-not-allowed" 
+            : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          }`}
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>
@@ -96,3 +97,4 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
 };
 
 export default ReviewForm;
+

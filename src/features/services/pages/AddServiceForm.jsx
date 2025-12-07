@@ -48,35 +48,36 @@ const AddServiceForm = ({ onServiceAdded }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-gray-50 dark:bg-gray-800 p-5 rounded-xl shadow mb-6"
+      className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md space-y-4 max-w-xl mx-auto"
     >
-      <h3 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200">
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
         Add New Service
       </h3>
 
-      <input
-        type="text"
-        placeholder="Service Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="border border-gray-300 dark:border-gray-600 p-2 rounded mb-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        required
-      />
+      <div className="flex flex-col md:flex-row gap-4">
+        <input
+          type="text"
+          placeholder="Service Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="flex-1 border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className="flex-1 border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+      </div>
 
       <textarea
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="border border-gray-300 dark:border-gray-600 p-2 rounded mb-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-      />
-
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        className="border border-gray-300 dark:border-gray-600 p-2 rounded mb-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        required
+        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none resize-none h-24"
       />
 
       <input
@@ -84,16 +85,16 @@ const AddServiceForm = ({ onServiceAdded }) => {
         placeholder="Available Locations (comma separated)"
         value={locations}
         onChange={(e) => setLocations(e.target.value)}
-        className="border border-gray-300 dark:border-gray-600 p-2 rounded mb-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
       />
 
       <button
         type="submit"
         disabled={loading}
-        className={`px-4 py-2 rounded w-full font-medium ${
+        className={`w-full py-3 rounded-md font-medium text-white transition-colors ${
           loading
-            ? "bg-gray-400 cursor-not-allowed text-gray-200"
-            : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white"
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
         }`}
       >
         {loading ? "Adding..." : "Add Service"}
@@ -103,3 +104,4 @@ const AddServiceForm = ({ onServiceAdded }) => {
 };
 
 export default AddServiceForm;
+

@@ -42,7 +42,7 @@ const AdminDashboard = () => {
       const pendingRes = await API.get("/admin/providers/pending");
       setPendingProviders(pendingRes.data.pendingProviders || []);
 
-      const contactRes = await API.get("/contact/admin/all"); // your backend route
+      const contactRes = await API.get("/contact/admin/all");
       setContactMessages(contactRes.data || []);
     } catch (err) {
       console.log("Admin Dashboard Error:", err);
@@ -57,11 +57,9 @@ const AdminDashboard = () => {
     try {
       await API.put(`/bookings/${id}`, { status });
 
-      // Remove cancelled booking from the list immediately
       if (status === "Cancelled") {
         setAllBookings((prev) => prev.filter((b) => b._id !== id));
       } else {
-        // For other status updates, you can keep it and refresh if needed
         fetchData();
       }
     } catch (err) {
@@ -184,30 +182,31 @@ const AdminDashboard = () => {
       </div>
 
       {/* Earnings Chart */}
-<div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-  <h2 className="text-xl font-semibold dark:text-white mb-4">Earnings Overview</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-semibold dark:text-white mb-4">
+          Earnings Overview
+        </h2>
 
-  <ResponsiveContainer width="100%" height={300}>
-    <LineChart
-      data={earningsHistory.map((item) => ({
-        ...item,
-        amount: Number(item.amount) || 0, // ensure numeric
-      }))}
-    >
-      <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
-      <XAxis dataKey="month" stroke="#e5e7eb" />
-      <YAxis stroke="#e5e7eb" />
-      <Tooltip formatter={(value) => `₹${value}`} />
-      <Line
-        type="monotone"
-        dataKey="amount"
-        stroke="#2563eb"
-        strokeWidth={3}
-      />
-    </LineChart>
-  </ResponsiveContainer>
-</div>
-
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={earningsHistory.map((item) => ({
+              ...item,
+              amount: Number(item.amount) || 0,
+            }))}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+            <XAxis dataKey="month" stroke="#e5e7eb" />
+            <YAxis stroke="#e5e7eb" />
+            <Tooltip formatter={(value) => `₹${value}`} />
+            <Line
+              type="monotone"
+              dataKey="amount"
+              stroke="#2563eb"
+              strokeWidth={3}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Recent Bookings */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
@@ -260,39 +259,40 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {allBookings.map((b) => (
-              <tr
-                key={b._id}
-                className="border-b dark:border-gray-700 text-center"
-              >
-                <td className="p-2">{b.client?.name}</td>
-                <td className="p-2">{b.provider?.name}</td>
-                <td className="p-2">{b.service?.title}</td>
-                <td className="p-2">{b.status}</td>
-                <td className="p-2 space-x-2">
-                  <button
-                    onClick={() => updateStatus(b._id, "Accepted")}
-                    className="px-3 py-1 bg-blue-500 text-white rounded"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => updateStatus(b._id, "Completed")}
-                    disabled={b.status === "Completed"}
-                    className="px-3 py-1 bg-green-500 text-white rounded disabled:opacity-50"
-                  >
-                    Complete
-                  </button>
-
-                  <button
-                    onClick={() => updateStatus(b._id, "Cancelled")}
-                    className="px-3 py-1 bg-red-500 text-white rounded"
-                  >
-                    Cancel
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {allBookings
+              .filter((b) => b.status !== "Cancelled")
+              .map((b) => (
+                <tr
+                  key={b._id}
+                  className="border-b dark:border-gray-700 text-center"
+                >
+                  <td className="p-2">{b.client?.name}</td>
+                  <td className="p-2">{b.provider?.name}</td>
+                  <td className="p-2">{b.service?.title}</td>
+                  <td className="p-2">{b.status}</td>
+                  <td className="p-2 space-x-2">
+                    <button
+                      onClick={() => updateStatus(b._id, "Accepted")}
+                      className="px-3 py-1 bg-blue-500 text-white rounded"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => updateStatus(b._id, "Completed")}
+                      disabled={b.status === "Completed"}
+                      className="px-3 py-1 bg-green-500 text-white rounded disabled:opacity-50"
+                    >
+                      Complete
+                    </button>
+                    <button
+                      onClick={() => updateStatus(b._id, "Cancelled")}
+                      className="px-3 py-1 bg-red-500 text-white rounded"
+                    >
+                      Cancel
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

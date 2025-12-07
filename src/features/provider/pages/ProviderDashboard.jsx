@@ -9,20 +9,19 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
 import AddServiceForm from "../../services/pages/AddServiceForm";
 import VerificationUpload from "./VerificationUpload";
 import ChatBox from "../../../components/ChatBox";
 import { useNavigate } from "react-router-dom";
 
+
 const ProviderDashboard = () => {
- const navigate=useNavigate();
+  const navigate = useNavigate();
   const [provider, setProvider] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true";
-  });
-
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("darkMode") === "true"
+  );
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -31,7 +30,6 @@ const ProviderDashboard = () => {
     bookings: [],
     earningsHistory: [],
   });
-
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -78,13 +76,6 @@ const ProviderDashboard = () => {
     window.location.href = "/login";
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => {
-      localStorage.setItem("darkMode", !prev);
-      return !prev;
-    });
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center dark:bg-gray-900 dark:text-white">
@@ -95,231 +86,252 @@ const ProviderDashboard = () => {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="p-6 min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Provider Dashboard</h1>
+      <div className="flex flex-col min-h-screen dark:bg-gray-900 dark:text-white">
 
-          <div className="flex gap-4">
-
-            {/* LOGOUT */}
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* PROFILE */}
-        {provider && (
-          <div className="bg-white dark:bg-gray-800 dark:text-white shadow p-5 rounded-xl mb-6 flex items-center gap-6">
-            <img
-              src={provider.profilePic || "/default-profile.png"}
-              alt="Profile"
-              className="w-24 h-24 rounded-full border"
-            />
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Profile</h2>
-              <p>
-                <strong>Name:</strong> {provider.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {provider.email}
-              </p>
-              <p>
-                <strong>Role:</strong> {provider.role}
-              </p>
+        {/* Sticky Header */}
+        <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-700 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
+              Provider Dashboard
+            </h1>
+            <div className="flex items-center gap-3">
+              
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Logout
+              </button>
             </div>
           </div>
-        )}
+        </header>
 
-        {/* VERIFICATION */}
-        <div className="bg-white dark:bg-gray-800 dark:text-white shadow p-6 rounded-xl mb-6">
-          <h2 className="text-xl font-bold mb-4">Verification Documents</h2>
-          {provider.isVerifiedProvider ? (
-            <p className="text-green-500 font-semibold">You are verified ✔</p>
-          ) : provider.verificationDocs?.length > 0 ? (
-            <p className="text-yellow-500 font-semibold">
-              Verification Pending ⏳
-            </p>
-          ) : (
-            <VerificationUpload onUploaded={fetchProviderData} />
-          )}
-        </div>
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-auto p-6 space-y-8">
 
-        {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="p-6 bg-white dark:bg-gray-800 shadow rounded-xl">
-            <h2 className="text-gray-500 dark:text-gray-300">Total Bookings</h2>
-            <p className="text-3xl font-bold">{stats.total}</p>
-          </div>
-
-          <div className="p-6 bg-yellow-100 dark:bg-yellow-600 shadow rounded-xl">
-            <h2 className="text-gray-700 dark:text-white">Pending</h2>
-            <p className="text-3xl font-bold">{stats.pending}</p>
-          </div>
-
-          <div className="p-6 bg-green-100 dark:bg-green-700 shadow rounded-xl">
-            <h2 className="text-gray-700 dark:text-white">Completed</h2>
-            <p className="text-3xl font-bold">{stats.completed}</p>
-          </div>
-
-          <div className="p-6 bg-blue-100 dark:bg-blue-700 shadow rounded-xl">
-            <h2 className="text-gray-700 dark:text-white">Earnings</h2>
-            <p className="text-3xl font-bold">₹{stats.earnings}</p>
-          </div>
-        </div>
-
-        {/* CHART */}
-        <div className="bg-white dark:bg-gray-800 dark:text-white mt-10 p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Earnings Overview</h2>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={stats.earningsHistory}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="amount"
-                  stroke="#2563eb"
-                  strokeWidth={3}
+          {/* PROFILE & VERIFICATION */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {provider && (
+              <div className="bg-white dark:bg-gray-800 shadow p-5 rounded-xl flex items-center gap-6">
+                <img
+                  src={provider.profilePic || "/default-profile.png"}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full border"
                 />
-              </LineChart>
-            </ResponsiveContainer>
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold">Profile</h2>
+                  <p><strong>Name:</strong> {provider.name}</p>
+                  <p><strong>Email:</strong> {provider.email}</p>
+                  <p><strong>Role:</strong> {provider.role}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white dark:bg-gray-800 shadow p-5 rounded-xl">
+              <h2 className="text-2xl font-bold mb-2">Verification</h2>
+              {provider.isVerifiedProvider ? (
+                <p className="text-green-500 font-semibold">You are verified ✔</p>
+              ) : provider.verificationDocs?.length > 0 ? (
+                <p className="text-yellow-500 font-semibold">Verification Pending ⏳</p>
+              ) : (
+                <VerificationUpload onUploaded={fetchProviderData} />
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* SERVICES */}
-        <div className="mt-10 bg-white dark:bg-gray-800 dark:text-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Manage Services</h2>
+          {/* STATS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <StatCard title="Total Bookings" value={stats.total} />
+            <StatCard title="Pending" value={stats.pending} color="yellow" />
+            <StatCard title="Completed" value={stats.completed} color="green" />
+            <StatCard title="Earnings" value={`₹${stats.earnings}`} color="blue" />
+          </div>
 
-          <AddServiceForm onServiceAdded={fetchProviderServices} />
+          {/* Earnings Chart */}
+          <Section title="Earnings Overview">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={stats.earningsHistory}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="#2563eb"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Section>
 
-          {services.length === 0 ? (
-            <p>No services added yet.</p>
-          ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200 dark:bg-gray-700">
-                  <th className="border p-2">Title</th>
-                  <th className="border p-2">Price</th>
-                  <th className="border p-2">Locations</th>
-                  <th className="border p-2">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {services.map((s) => (
-                  <tr key={s._id} className="text-center">
-                    <td className="border p-2">{s.title}</td>
-                    <td className="border p-2">₹{s.price}</td>
-                    <td className="border p-2">
-                      {s.availableLocations.join(", ")}
-                    </td>
-                    <td className="border p-2 space-x-2">
-                      <button
-                      onClick={() => navigate(`/admin/services/edit/${s._id}`)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                      <button className="px-2 py-1 bg-red-600 text-white rounded">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* BOOKINGS */}
-        <div className="mt-10 bg-white dark:bg-gray-800 dark:text-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Booking Requests</h2>
-
-          {stats.bookings.length === 0 ? (
-            <p>No bookings yet.</p>
-          ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200 dark:bg-gray-700">
-                  <th className="border p-2">Client</th>
-                  <th className="border p-2">Pickup</th>
-                  <th className="border p-2">Drop</th>
-                  <th className="border p-2">Date</th>
-                  <th className="border p-2">Status</th>
-                  <th className="border p-2">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {stats.bookings.map((b) => (
-                  <tr key={b._id} className="text-center">
-                    <td className="border p-2">{b.client.name}</td>
-                    <td className="border p-2">{b.pickupLocation}</td>
-                    <td className="border p-2">{b.dropLocation}</td>
-                    <td className="border p-2">
-                      {new Date(b.date).toLocaleDateString()}
-                    </td>
-                    <td className="border p-2">{b.status}</td>
-
-                    <td className="border p-2 space-x-2">
-                      <button
-                        onClick={() => setSelectedBooking(b)}
-                        className="px-3 py-1 bg-indigo-600 text-white rounded"
-                      >
-                        Chat
-                      </button>
-
-                      {b.status === "Pending" && (
-                        <>
+          {/* SERVICES */}
+          <Section title="Manage Services">
+            <AddServiceForm onServiceAdded={fetchProviderServices} />
+            {services.length === 0 ? (
+              <p>No services added yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-center">
+                  <thead>
+                    <tr className="bg-gray-200 dark:bg-gray-700">
+                      <th className="border p-2">Title</th>
+                      <th className="border p-2">Price</th>
+                      <th className="border p-2">Locations</th>
+                      <th className="border p-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {services.map((s) => (
+                      <tr key={s._id}>
+                        <td className="border p-2">{s.title}</td>
+                        <td className="border p-2">₹{s.price}</td>
+                        <td className="border p-2">{s.availableLocations.join(", ")}</td>
+                        <td className="border p-2 space-x-2">
                           <button
-                            onClick={() => updateStatus(b._id, "Accepted")}
-                            className="px-3 py-1 bg-green-600 text-white rounded"
+                            onClick={() => navigate(`/admin/services/edit/${s._id}`)}
+                            className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                           >
-                            Accept
+                            Edit
                           </button>
+                          <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Section>
+
+          {/* BOOKINGS */}
+          <Section title="Booking Requests">
+            {stats.bookings.length === 0 ? (
+              <p>No bookings yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-center">
+                  <thead>
+                    <tr className="bg-gray-200 dark:bg-gray-700">
+                      <th className="border p-2">Client</th>
+                      <th className="border p-2">Pickup</th>
+                      <th className="border p-2">Drop</th>
+                      <th className="border p-2">Date</th>
+                      <th className="border p-2">Status</th>
+                      <th className="border p-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.bookings.map((b) => (
+                      <tr key={b._id}>
+                        <td className="border p-2">{b.client.name}</td>
+                        <td className="border p-2">{b.pickupLocation}</td>
+                        <td className="border p-2">{b.dropLocation}</td>
+                        <td className="border p-2">{new Date(b.date).toLocaleDateString()}</td>
+                        <td className="border p-2">
+                          <span
+                            className={`px-2 py-1 rounded font-semibold ${
+                              b.status === "Pending"
+                                ? "bg-yellow-200 text-yellow-800"
+                                : b.status === "Accepted"
+                                ? "bg-blue-200 text-blue-800"
+                                : b.status === "Completed"
+                                ? "bg-green-200 text-green-800"
+                                : "bg-red-200 text-red-800"
+                            }`}
+                          >
+                            {b.status}
+                          </span>
+                        </td>
+                        <td className="border p-2 space-x-2">
                           <button
-                            onClick={() => updateStatus(b._id, "Rejected")}
-                            className="px-3 py-1 bg-red-600 text-white rounded"
+                            onClick={() => setSelectedBooking(b)}
+                            className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                           >
-                            Reject
+                            Chat
                           </button>
-                        </>
-                      )}
+                          {b.status === "Pending" && (
+                            <>
+                              <button
+                                onClick={() => updateStatus(b._id, "Accepted")}
+                                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => updateStatus(b._id, "Rejected")}
+                                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          {b.status === "Accepted" && (
+                            <button
+                              onClick={() => updateStatus(b._id, "Completed")}
+                              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            >
+                              Complete
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Section>
 
-                      {b.status === "Accepted" && (
-                        <button
-                          onClick={() => updateStatus(b._id, "Completed")}
-                          className="px-3 py-1 bg-blue-600 text-white rounded"
-                        >
-                          Complete
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* CHAT BOX */}
+          {selectedBooking && (
+            <ChatBox
+              booking={selectedBooking}
+              onClose={() => setSelectedBooking(null)}
+              currentUser={provider}
+            />
           )}
-        </div>
-
-        {/* CHAT BOX */}
-        {selectedBooking && (
-          <ChatBox
-            booking={selectedBooking}
-            onClose={() => setSelectedBooking(null)}
-            currentUser={provider} // pass logged-in provider
-          />
-        )}
+        </main>
       </div>
     </div>
   );
 };
+
+const StatCard = ({ title, value, color = "white" }) => {
+  const bgColor =
+    color === "yellow"
+      ? "bg-yellow-100 dark:bg-yellow-600"
+      : color === "green"
+      ? "bg-green-100 dark:bg-green-700"
+      : color === "blue"
+      ? "bg-blue-100 dark:bg-blue-700"
+      : "bg-white dark:bg-gray-800";
+  const textColor =
+    color === "yellow"
+      ? "text-gray-700 dark:text-white"
+      : color === "green"
+      ? "text-gray-700 dark:text-white"
+      : color === "blue"
+      ? "text-gray-700 dark:text-white"
+      : "text-gray-500 dark:text-gray-300";
+
+  return (
+    <div className={`${bgColor} shadow rounded-xl p-6 text-center`}>
+      <h2 className={`${textColor}`}>{title}</h2>
+      <p className="text-3xl font-bold">{value}</p>
+    </div>
+  );
+};
+
+const Section = ({ title, children }) => (
+  <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6">
+    <h2 className="text-xl font-semibold dark:text-white mb-4">{title}</h2>
+    {children}
+  </div>
+);
 
 export default ProviderDashboard;

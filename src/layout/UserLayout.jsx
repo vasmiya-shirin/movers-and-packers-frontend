@@ -7,14 +7,15 @@ import ChatBot from '../components/ChatBot'
 function UserLayout() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-        <div className="flex-grow">
-            <Outlet />
-        </div>
-        <ChatBot />
-        <Footer />
+      <Header /> {/* sticky header */}
+      <div className="flex-grow pt-20"> {/* add top padding */}
+        <Outlet />
+      </div>
+      <ChatBot />
+      <Footer />
     </div>
   )
 }
 
 export default UserLayout
+
