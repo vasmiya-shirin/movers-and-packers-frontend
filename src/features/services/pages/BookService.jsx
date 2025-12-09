@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import API from "../../../api/api";
 
 const BookService = () => {
@@ -16,11 +16,17 @@ const BookService = () => {
     const fetchService = async () => {
       try {
         const res = await API.get(`/services/${serviceId}`);
-        setService(res.data.service || res.data);
+        const fetchedService = res.data.service || res.data;
+
+        console.log("Fetched service:", fetchedService);
+
+        // NO SERVICE STATUS CHECK HERE ✔️
+        setService(fetchedService);
       } catch (err) {
         console.log("Error fetching service:", err);
       }
     };
+
     fetchService();
   }, [serviceId]);
 
@@ -50,17 +56,11 @@ const BookService = () => {
         serviceName: service.title,
       });
 
+      // Redirect to Stripe Payment Page
       window.location.href = stripeRes.data.url;
     } catch (err) {
       const msg = err?.response?.data?.message;
       console.log("Booking error:", msg || err.message);
-
-      if (msg === "Payment is allowed only for completed services.") {
-        alert(msg);
-        navigate("/client/completed-bookings");
-        return;
-      }
-
       alert(msg || "Something went wrong while booking the service.");
     } finally {
       setLoading(false);
@@ -82,7 +82,6 @@ const BookService = () => {
         </h1>
 
         <div className="space-y-4">
-          {/* Pickup Location */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold mb-1 text-gray-800 dark:text-gray-300">
               Pickup Location
@@ -96,7 +95,6 @@ const BookService = () => {
             />
           </div>
 
-          {/* Drop Location */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold mb-1 text-gray-800 dark:text-gray-300">
               Drop Location
@@ -110,7 +108,6 @@ const BookService = () => {
             />
           </div>
 
-          {/* Date */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold mb-1 text-gray-800 dark:text-gray-300">
               Choose Date
@@ -124,7 +121,6 @@ const BookService = () => {
           </div>
         </div>
 
-        {/* Confirm Button */}
         <button
           onClick={handleBooking}
           disabled={loading}

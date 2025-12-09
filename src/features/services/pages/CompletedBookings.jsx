@@ -7,15 +7,19 @@ const CompletedBookings = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const fetchBookings = async () => {
+    try {
+      const res = await API.get("/bookings/my");
+      const completed = (res.data.bookings || []).filter(
+        (b) => b.status === "Completed" && b.adminApproved === true
+      );
+      setBookings(completed);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await API.get("/bookings/my"); // client bookings
-        setBookings(res.data.bookings || []);
-      } catch (err) {
-        console.error("Error fetching bookings:", err);
-      }
-    };
     fetchBookings();
   }, []);
 
@@ -23,7 +27,7 @@ const CompletedBookings = () => {
     try {
       setLoading(true);
       const res = await API.post("/payments/create-checkout-session", { bookingId });
-      window.location.href = res.data.url;
+      window.location.href = res.data.url; // Stripe redirect
     } catch (err) {
       console.error("Payment error:", err.response?.data || err.message);
       alert(err.response?.data?.message || "Payment failed");
@@ -35,7 +39,7 @@ const CompletedBookings = () => {
   if (!bookings.length)
     return (
       <div className="min-h-screen flex items-center justify-center p-10 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
-        No bookings found.
+        No completed services available for payment.
       </div>
     );
 
@@ -56,15 +60,15 @@ const CompletedBookings = () => {
                 Service: <span className="font-normal">{b.service?.title}</span>
               </p>
               <p className="font-semibold text-gray-800 dark:text-gray-200">
-                Status: <span className="font-normal">{b.status}</span>
+                Total: <span className="font-normal">₹{b.totalPrice}</span>
               </p>
               <p className="font-semibold text-gray-800 dark:text-gray-200">
-                Total: <span className="font-normal">₹{b.totalPrice}</span>
+                Status: <span className="font-normal">{b.status}</span>
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              {b.status === "Completed" && !b.isPaid && (
+              {!b.isPaid ? (
                 <button
                   onClick={() => handlePayment(b._id)}
                   disabled={loading}
@@ -76,9 +80,10 @@ const CompletedBookings = () => {
                 >
                   {loading ? "Processing..." : "Pay Now"}
                 </button>
-              )}
-              {b.isPaid && (
-                <span className="text-green-600 dark:text-green-400 font-semibold">Paid</span>
+              ) : (
+                <span className="text-green-600 dark:text-green-400 font-semibold">
+                  Paid
+                </span>
               )}
             </div>
           </div>
@@ -96,4 +101,5 @@ const CompletedBookings = () => {
 };
 
 export default CompletedBookings;
+
 
