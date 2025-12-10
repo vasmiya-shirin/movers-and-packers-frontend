@@ -17,10 +17,6 @@ const BookService = () => {
       try {
         const res = await API.get(`/services/${serviceId}`);
         const fetchedService = res.data.service || res.data;
-
-        console.log("Fetched service:", fetchedService);
-
-        // NO SERVICE STATUS CHECK HERE ✔️
         setService(fetchedService);
       } catch (err) {
         console.log("Error fetching service:", err);
@@ -38,7 +34,7 @@ const BookService = () => {
     setLoading(true);
 
     try {
-      // 1️⃣ Create Booking
+      // Create booking (payment will be done after admin completion)
       const bookingRes = await API.post("/bookings", {
         service: serviceId,
         pickupLocation,
@@ -47,21 +43,13 @@ const BookService = () => {
         totalPrice: service.price,
       });
 
-      const booking = bookingRes.data.booking;
-
-      // 2️⃣ Create Stripe Checkout Session
-      const stripeRes = await API.post("/payments/create-checkout-session", {
-        bookingId: booking._id,
-        amount: service.price,
-        serviceName: service.title,
-      });
-
-      // Redirect to Stripe Payment Page
-      window.location.href = stripeRes.data.url;
+      alert(
+        "Booking created successfully! You will pay after admin completes the service."
+      );
+      navigate("/my-bookings");
     } catch (err) {
-      const msg = err?.response?.data?.message;
-      console.log("Booking error:", msg || err.message);
-      alert(msg || "Something went wrong while booking the service.");
+      console.error("Booking error:", err);
+      alert("Failed to create booking. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -130,7 +118,7 @@ const BookService = () => {
               : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           }`}
         >
-          {loading ? "Processing..." : `Confirm & Pay ₹${service.price}`}
+          {loading ? "Processing..." : `Confirm Booking`}
         </button>
       </div>
     </div>
@@ -138,3 +126,4 @@ const BookService = () => {
 };
 
 export default BookService;
+

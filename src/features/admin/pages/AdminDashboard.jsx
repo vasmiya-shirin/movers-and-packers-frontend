@@ -53,19 +53,29 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  const updateStatus = async (id, status) => {
-    try {
-      await API.put(`/bookings/${id}`, { status });
+const updateStatus = async (id, status) => {
+  try {
+    // Prepare payload
+    const payload = { status };
 
-      if (status === "Cancelled") {
-        setAllBookings((prev) => prev.filter((b) => b._id !== id));
-      } else {
-        fetchData();
-      }
-    } catch (err) {
-      console.log("Update Status Error:", err);
-    }
-  };
+    // Mark adminApproval only when Completed
+    if (status === "Completed") payload.adminApproval = true;
+
+    // Send update request
+    await API.put(`/bookings/${id}`, payload);
+
+    // Refetch all bookings, filtering out Cancelled ones
+    const allRes = await API.get("/bookings/all");
+    const filteredBookings = (allRes.data.bookings || []).filter(
+      (b) => b.status !== "Cancelled"
+    );
+    setAllBookings(filteredBookings);
+
+  } catch (err) {
+    console.log("Update Status Error:", err);
+  }
+};
+
 
   const approveProvider = async (id) => {
     try {

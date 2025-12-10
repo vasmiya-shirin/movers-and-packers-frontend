@@ -6,24 +6,18 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extract bookingId from URL
+useEffect(() => {
   const bookingId = new URLSearchParams(location.search).get("bookingId");
+  if (bookingId) {
+    API.put("/payments/mark-paid", { bookingId })
+      .then(() => console.log("Payment updated to Paid"))
+      .catch((err) => console.error(err));
+  }
 
-  useEffect(() => {
-    if (bookingId) {
-      API.put("/payments/mark-paid", { bookingId })
-        .then(() => {
-          console.log("Payment status updated to Paid");
-        })
-        .catch((err) => console.error("Error updating payment:", err));
-    }
+  const timer = setTimeout(() => navigate("/my-bookings"), 2000);
+  return () => clearTimeout(timer);
+}, [location, navigate]);
 
-    const timer = setTimeout(() => {
-      navigate("/my-bookings");
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [navigate, bookingId]);
 
   return (
     <div className="h-screen flex justify-center items-center bg-green-100 dark:bg-green-900">
