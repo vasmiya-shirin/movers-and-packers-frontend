@@ -22,6 +22,7 @@ import CompletedBookings from "../features/services/pages/CompletedBookings";
 import AdminInbox from "../features/admin/pages/AdminInbox";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
+import VerifyOTP from "../features/auth/pages/VerifyOTP";
 
 export const router = createBrowserRouter([
   {
@@ -53,8 +54,12 @@ export const router = createBrowserRouter([
         path: "/forgot-password",
         element: <ForgotPassword />,
       },
+       {
+        path: "/verify-otp",
+        element: <VerifyOTP />,
+      },
       {
-        path: "/reset-password/:token",
+        path: "/reset-password",
         element: <ResetPassword />,
       },
       {

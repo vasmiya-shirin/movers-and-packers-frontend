@@ -1,80 +1,62 @@
-import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import API from "../../../api/api";
-import { useParams, useNavigate } from "react-router-dom";
 
-const ResetPassword = () => {
-  const { token } = useParams();
-  const [password, setPassword] = useState("");
-  const [confirmPass, setConfirmPass] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function ResetPassword() {
+  const { state } = useLocation();
   const navigate = useNavigate();
 
-  const resetPass = async (e) => {
-    e.preventDefault();
+  const resetToken = state?.resetToken;
 
-    if (password !== confirmPass) {
-      setMessage("Passwords do not match");
-      return;
+  const [newPassword, setNewPassword] = useState("");
+  const [msg, setMsg] = useState("");
+
+  // ✅ FIX — Redirect only inside useEffect()
+  useEffect(() => {
+    if (!resetToken) {
+      navigate("/forgot-password");
     }
+  }, [resetToken, navigate]);
 
-    setLoading(true);
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await API.post(`/users/reset-password/${token}`, {
-        password,
+      await API.post("/users/reset-password", {
+        resetToken,
+        newPassword,
       });
-      setMessage("Password reset successfully!");
+
+      setMsg("Password updated successfully!");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Invalid or expired token");
+      setMsg(err.response?.data?.message || "Error resetting password");
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-96 border dark:border-gray-700">
-        
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-          Reset Password
-        </h2>
+    <div className="flex justify-center items-center h-screen bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center mb-4">Reset Password</h2>
 
-        <form onSubmit={resetPass}>
+        <form onSubmit={handleSubmit}>
           <input
             type="password"
-            placeholder="New Password"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter new password"
+            className="w-full border p-3 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
           />
 
-          <input
-            type="password"
-            placeholder="Confirm New Password"
-            className="w-full p-3 border rounded mb-3 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            onChange={(e) => setConfirmPass(e.target.value)}
-            required
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 dark:bg-green-700 text-white py-3 rounded hover:bg-green-700 dark:hover:bg-green-800 transition disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Reset Password"}
+          <button className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition">
+            Reset Password
           </button>
         </form>
 
-        {message && (
-          <p className="text-center mt-4 text-gray-700 dark:text-gray-300">
-            {message}
-          </p>
-        )}
+        {msg && <p className="text-center mt-4 text-green-600">{msg}</p>}
       </div>
     </div>
   );
-};
+}
 
-export default ResetPassword;
+
