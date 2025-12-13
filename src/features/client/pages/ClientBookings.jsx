@@ -181,12 +181,7 @@ const ClientBookings = () => {
                   </p>
                 )}
 
-                {/* Admin Approval Notice */}
-                {!b.adminApproval && b.status?.toLowerCase() === "completed" && (
-                  <p className="text-yellow-600 dark:text-yellow-400 mt-1">
-                    Awaiting Admin completion before payment
-                  </p>
-                )}
+          
 
                 {/* Pay Now Button */}
                 {b.status?.toLowerCase() === "approved" &&

@@ -79,7 +79,8 @@ const AdminDashboard = () => {
 
   // Reject provider
   const rejectProvider = async (id) => {
-    if (!window.confirm("Are you sure you want to reject this provider?")) return;
+    if (!window.confirm("Are you sure you want to reject this provider?"))
+      return;
     try {
       await API.delete(`/admin/providers/${id}`);
       alert("Provider rejected!");
@@ -91,7 +92,8 @@ const AdminDashboard = () => {
 
   // Delete service
   const deleteService = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this service?")) return;
+    if (!window.confirm("Are you sure you want to delete this service?"))
+      return;
     try {
       await API.delete(`/services/${id}`);
       alert("Service deleted successfully");
@@ -154,7 +156,11 @@ const AdminDashboard = () => {
       <AllBookings bookings={allBookings} updateStatus={updateStatus} />
 
       {/* All Services */}
-      <AllServices services={allServices} navigate={navigate} deleteService={deleteService} />
+      <AllServices
+        services={allServices}
+        navigate={navigate}
+        deleteService={deleteService}
+      />
 
       {/* All Reviews */}
       <AllReviews reviews={reviews} />
@@ -177,7 +183,9 @@ const Card = ({ title, value }) => (
 
 const PendingProviders = ({ providers, approveProvider, rejectProvider }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-    <h2 className="text-xl font-semibold dark:text-white mb-4">Pending Providers</h2>
+    <h2 className="text-xl font-semibold dark:text-white mb-4">
+      Pending Providers
+    </h2>
     {providers.length === 0 ? (
       <p className="dark:text-gray-300">No pending providers.</p>
     ) : (
@@ -220,16 +228,26 @@ const PendingProviders = ({ providers, approveProvider, rejectProvider }) => (
 
 const EarningsChart = ({ earningsHistory }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-    <h2 className="text-xl font-semibold dark:text-white mb-4">Earnings Overview</h2>
+    <h2 className="text-xl font-semibold dark:text-white mb-4">
+      Earnings Overview
+    </h2>
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
-        data={earningsHistory.map((item) => ({ ...item, amount: Number(item.amount) || 0 }))}
+        data={earningsHistory.map((item) => ({
+          ...item,
+          amount: Number(item.amount) || 0,
+        }))}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
         <XAxis dataKey="month" stroke="#e5e7eb" />
         <YAxis stroke="#e5e7eb" />
         <Tooltip formatter={(value) => `₹${value}`} />
-        <Line type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} />
+        <Line
+          type="monotone"
+          dataKey="amount"
+          stroke="#2563eb"
+          strokeWidth={3}
+        />
       </LineChart>
     </ResponsiveContainer>
   </div>
@@ -237,7 +255,9 @@ const EarningsChart = ({ earningsHistory }) => (
 
 const RecentBookings = ({ bookings }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-    <h2 className="text-xl font-semibold dark:text-white mb-4">Recent Bookings</h2>
+    <h2 className="text-xl font-semibold dark:text-white mb-4">
+      Recent Bookings
+    </h2>
     {bookings.length === 0 ? (
       <p className="dark:text-gray-300">No recent bookings.</p>
     ) : (
@@ -258,7 +278,9 @@ const RecentBookings = ({ bookings }) => (
               <td className="p-2">{b.provider?.name}</td>
               <td className="p-2">{b.service?.title}</td>
               <td className="p-2 text-blue-400">{b.status}</td>
-              <td className="p-2">{new Date(b.createdAt).toLocaleDateString()}</td>
+              <td className="p-2">
+                {new Date(b.createdAt).toLocaleDateString()}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -269,7 +291,9 @@ const RecentBookings = ({ bookings }) => (
 
 const AllBookings = ({ bookings, updateStatus }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-    <h2 className="text-xl font-semibold dark:text-white mb-4">Manage All Bookings</h2>
+    <h2 className="text-xl font-semibold dark:text-white mb-4">
+      Manage All Bookings
+    </h2>
     <table className="w-full border-collapse">
       <thead>
         <tr className="text-left border-b dark:border-gray-700">
@@ -284,7 +308,10 @@ const AllBookings = ({ bookings, updateStatus }) => (
         {bookings
           .filter((b) => b.status !== "Cancelled")
           .map((b) => (
-            <tr key={b._id} className="border-b dark:border-gray-700 text-center">
+            <tr
+              key={b._id}
+              className="border-b dark:border-gray-700 text-center"
+            >
               <td className="p-2">{b.client?.name}</td>
               <td className="p-2">{b.provider?.name}</td>
               <td className="p-2">{b.service?.title}</td>
@@ -311,14 +338,15 @@ const AllBookings = ({ bookings, updateStatus }) => (
                   </button>
                 )}
 
-                {b.status === "Accepted" && (
-                  <button
-                    onClick={() => updateStatus(b._id, "Completed")}
-                    className="px-3 py-1 bg-purple-600 text-white rounded"
-                  >
-                    Complete
-                  </button>
-                )}
+                {b.status === "Accepted" &&
+                  b.trackingStatus === "Delivered" && (
+                    <button
+                      onClick={() => updateStatus(b._id, "Completed")}
+                      className="px-3 py-1 bg-purple-600 text-white rounded"
+                    >
+                      Complete
+                    </button>
+                  )}
 
                 {b.status === "Completed" && (
                   <button
@@ -364,12 +392,21 @@ const AllServices = ({ services, navigate, deleteService }) => (
         </thead>
         <tbody>
           {services.map((s) => (
-            <tr key={s._id} className="text-center border-b dark:border-gray-700">
+            <tr
+              key={s._id}
+              className="text-center border-b dark:border-gray-700"
+            >
               <td className="border p-2 dark:border-gray-700">{s.title}</td>
-              <td className="border p-2 dark:border-gray-700">{s.provider?.name}</td>
+              <td className="border p-2 dark:border-gray-700">
+                {s.provider?.name}
+              </td>
               <td className="border p-2 dark:border-gray-700">₹{s.price}</td>
-              <td className="border p-2 dark:border-gray-700">{s.availableLocations.join(", ")}</td>
-              <td className="border p-2 dark:border-gray-700">{s.isActive ? "Active" : "Inactive"}</td>
+              <td className="border p-2 dark:border-gray-700">
+                {s.availableLocations.join(", ")}
+              </td>
+              <td className="border p-2 dark:border-gray-700">
+                {s.isActive ? "Active" : "Inactive"}
+              </td>
               <td className="border p-2 space-x-2 dark:border-gray-700">
                 <button
                   onClick={() => navigate(`/admin/services/edit/${s._id}`)}
@@ -417,7 +454,9 @@ const AllReviews = ({ reviews }) => (
               <td className="p-2">{r.booking}</td>
               <td className="p-2">{r.rating} ⭐</td>
               <td className="p-2">{r.comment}</td>
-              <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
+              <td className="p-2">
+                {new Date(r.createdAt).toLocaleDateString()}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -428,7 +467,9 @@ const AllReviews = ({ reviews }) => (
 
 const ContactMessages = ({ messages }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 mb-10">
-    <h2 className="text-xl font-semibold dark:text-white mb-4">Contact Messages</h2>
+    <h2 className="text-xl font-semibold dark:text-white mb-4">
+      Contact Messages
+    </h2>
     {messages.length === 0 ? (
       <p className="dark:text-gray-300">No contact messages yet.</p>
     ) : (
@@ -447,7 +488,9 @@ const ContactMessages = ({ messages }) => (
               <td className="p-2">{msg.name}</td>
               <td className="p-2">{msg.email}</td>
               <td className="p-2">{msg.message}</td>
-              <td className="p-2">{new Date(msg.createdAt).toLocaleString()}</td>
+              <td className="p-2">
+                {new Date(msg.createdAt).toLocaleString()}
+              </td>
             </tr>
           ))}
         </tbody>
