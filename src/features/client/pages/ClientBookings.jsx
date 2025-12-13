@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
 import ReviewForm from "../../client/pages/ReviewForm";
+import ChatBox from "../../../components/ChatBox";
 
 const TRACKING_STEPS = [
   "Booked",
@@ -15,9 +16,11 @@ const ClientBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loadingPaymentId, setLoadingPaymentId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
+  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
 
-  // Fetch bookings from backend
   const fetchBookings = async () => {
     try {
       const res = await API.get("/bookings/my");
@@ -37,7 +40,6 @@ const ClientBookings = () => {
     fetchBookings();
   }, []);
 
-  // Handle Stripe payment
   const handlePayNow = async (bookingId, serviceTitle, amount) => {
     try {
       setLoadingPaymentId(bookingId);
@@ -81,7 +83,7 @@ const ClientBookings = () => {
   }
 
   return (
-    <div className="p-10 bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 md:p-10 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
           My Bookings
@@ -94,23 +96,26 @@ const ClientBookings = () => {
         </button>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bookings.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">No bookings found.</p>
+          <p className="text-gray-600 dark:text-gray-400 col-span-full">
+            No bookings found.
+          </p>
         ) : (
           bookings.map((b) => {
             const trackingStatus = b.trackingStatus || "Booked";
             return (
               <div
                 key={b._id}
-                className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl"
+                className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 shadow rounded-xl flex flex-col justify-between"
               >
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {/* Header */}
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   {b.service?.title || "Service"}
                 </h2>
 
                 {/* Booking Info */}
-                <div className="mt-2 text-gray-700 dark:text-gray-300 space-y-1">
+                <div className="space-y-1 text-gray-700 dark:text-gray-300 mb-3">
                   <p>
                     <strong>Status:</strong>{" "}
                     <span className={getStatusColor(b.status)}>
@@ -130,90 +135,100 @@ const ClientBookings = () => {
                     </span>
                   </p>
                   <p>
-                    <strong>Pickup Location:</strong> {b.pickupLocation || "N/A"}
+                    <strong>Pickup:</strong> {b.pickupLocation || "N/A"}
                   </p>
                   <p>
-                    <strong>Drop Location:</strong> {b.dropLocation || "N/A"}
+                    <strong>Drop:</strong> {b.dropLocation || "N/A"}
                   </p>
+                  {b.provider ? (
+                    <>
+                      <p>
+                        <strong>Provider:</strong> {b.provider.name}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {b.provider.email}
+                      </p>
+                    </>
+                  ) : (
+                    <p>Provider info not available</p>
+                  )}
                 </div>
 
-                {/* Tracking Status */}
-                <div className="mt-4">
-                  <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {/* Tracking Steps */}
+                <div className="mb-3">
+                  <p className="font-semibold mb-1 text-gray-700 dark:text-gray-300">
                     Tracking Status
                   </p>
-                  <span className="inline-block mb-3 px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                    {trackingStatus}
-                  </span>
-
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap">
                     {TRACKING_STEPS.map((step, index) => {
-                      const active = TRACKING_STEPS.indexOf(trackingStatus) >= index;
+                      const active =
+                        TRACKING_STEPS.indexOf(trackingStatus) >= index;
                       return (
-                        <div
+                        <span
                           key={step}
-                          className={`flex-1 text-center text-[10px] py-1 rounded ${
+                          className={`text-[10px] px-2 py-1 rounded-full mb-1 ${
                             active
                               ? "bg-green-500 text-white"
                               : "bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
                           }`}
                         >
                           {step}
-                        </div>
+                        </span>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Provider Info */}
-                {b.provider ? (
-                  <div className="mt-3 text-gray-700 dark:text-gray-300 space-y-1">
-                    <p>
-                      <strong>Provider Name:</strong> {b.provider.name}
-                    </p>
-                    <p>
-                      <strong>Provider Email:</strong> {b.provider.email}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="mt-3 text-gray-500 dark:text-gray-400">
-                    Provider info not available
-                  </p>
+                {/* Actions */}
+                <div className="flex flex-col gap-2 mt-auto">
+                  <button
+                    onClick={() => setSelectedBooking(b)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                  >
+                    Chat with Provider
+                  </button>
+
+                  {b.status?.toLowerCase() === "approved" &&
+                    b.paymentStatus === "Unpaid" && (
+                      <button
+                        onClick={() =>
+                          handlePayNow(b._id, b.service.title, b.totalPrice)
+                        }
+                        disabled={loadingPaymentId === b._id}
+                        className={`px-4 py-2 rounded-lg text-white shadow transition ${
+                          loadingPaymentId === b._id
+                            ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                            : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                        }`}
+                      >
+                        {loadingPaymentId === b._id
+                          ? "Redirecting..."
+                          : "Pay Now"}
+                      </button>
+                    )}
+
+                  {b.status?.toLowerCase() === "approved" &&
+                    b.paymentStatus?.toLowerCase() === "paid" &&
+                    b.provider?._id && (
+                      <ReviewForm
+                        bookingId={b._id}
+                        providerId={b.provider._id}
+                        onSuccess={() => {
+                          alert("Review submitted!");
+                          fetchBookings();
+                        }}
+                      />
+                    )}
+                </div>
+
+                {/* ChatBox */}
+                {selectedBooking?._id === b._id && (
+                  <ChatBox
+                    booking={selectedBooking}
+                    currentUser={user}
+                    onClose={() => setSelectedBooking(null)}
+                  />
                 )}
-
-          
-
-                {/* Pay Now Button */}
-                {b.status?.toLowerCase() === "approved" &&
-                  b.paymentStatus === "Unpaid" && (
-                    <button
-                      onClick={() =>
-                        handlePayNow(b._id, b.service.title, b.totalPrice)
-                      }
-                      disabled={loadingPaymentId === b._id}
-                      className={`mt-2 px-4 py-2 rounded-lg text-white shadow transition ${
-                        loadingPaymentId === b._id
-                          ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                          : "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                      }`}
-                    >
-                      {loadingPaymentId === b._id ? "Redirecting..." : "Pay Now"}
-                    </button>
-                  )}
-
-                {/* Review Form */}
-                {b.status?.toLowerCase() === "approved" &&
-                  b.paymentStatus?.toLowerCase() === "paid" &&
-                  b.provider?._id && (
-                    <ReviewForm
-                      bookingId={b._id}
-                      providerId={b.provider._id}
-                      onSuccess={() => {
-                        alert("Review submitted!");
-                        fetchBookings();
-                      }}
-                    />
-                  )}
               </div>
             );
           })
@@ -224,5 +239,3 @@ const ClientBookings = () => {
 };
 
 export default ClientBookings;
-
-
