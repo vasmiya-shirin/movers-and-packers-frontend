@@ -155,7 +155,6 @@ const ClientDashboard = () => {
             </p>
           </div>
         </div>
-
         {/* Recent Bookings Section */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-4xl">
           <h2 className="text-xl font-semibold mb-4 dark:text-white">
@@ -168,42 +167,57 @@ const ClientDashboard = () => {
             </p>
           ) : (
             <ul className="space-y-3">
-              {bookings.map((booking) => (
-                <li
-                  key={booking._id}
-                  className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                  onClick={() => setSelectedBooking(booking)}
-                >
-                  <p>
-                    <span className="font-medium">Service:</span>{" "}
-                    {booking.service?.title || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Provider:</span>{" "}
-                    {booking.provider?.name || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Date:</span>{" "}
-                    {new Date(
-                      booking.date || booking.createdAt
-                    ).toLocaleString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Status:</span>{" "}
-                    <span
-                      className={
-                        booking.status === "pending"
-                          ? "text-yellow-500"
-                          : booking.status === "completed"
-                          ? "text-green-500"
-                          : "text-gray-500"
-                      }
-                    >
-                      {booking.status || "N/A"}
-                    </span>
-                  </p>
-                </li>
-              ))}
+              {bookings.map((booking) => {
+                // Map status to colors
+                const statusColor =
+                  booking.status === "pending"
+                    ? "text-yellow-500"
+                    : booking.status === "accepted"
+                    ? "text-blue-500"
+                    : booking.status === "completed"
+                    ? "text-green-500"
+                    : booking.status === "approved"
+                    ? "text-purple-500"
+                    : booking.status === "cancelled"
+                    ? "text-red-500"
+                    : "text-gray-500";
+
+                // Show tracking
+                const tracking = booking.trackingStatus || "Booked";
+
+                return (
+                  <li
+                    key={booking._id}
+                    className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                    onClick={() => setSelectedBooking(booking)}
+                  >
+                    <p>
+                      <span className="font-medium">Service:</span>{" "}
+                      {booking.service?.title || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium">Provider:</span>{" "}
+                      {booking.provider?.name || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium">Date:</span>{" "}
+                      {new Date(
+                        booking.date || booking.createdAt
+                      ).toLocaleString()}
+                    </p>
+                    <p>
+                      <span className="font-medium">Status:</span>{" "}
+                      <span className={statusColor}>
+                        {booking.status || "N/A"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-medium">Tracking:</span>{" "}
+                      <span className="text-blue-500">{tracking}</span>
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
           )}
 
