@@ -12,6 +12,7 @@ const Login = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -19,17 +20,33 @@ const Login = () => {
 
     try {
       const res = await API.post("/users/login", form);
+      const user = res.data.user;
+      const token = res.data.token;
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
+      // Save token & user info
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("isVerified", user.isVerified.toString());
 
       setMessage("Login successful!");
 
-      if (res.data.role === "client") navigate("/client-dashboard");
-      else if (res.data.role === "provider") navigate("/provider-dashboard");
-      else if (res.data.role === "admin") navigate("/admin-dashboard");
+      // Redirect based on role & verification
+      if (user.role === "client") navigate("/client-dashboard");
+      else if (user.role === "provider") {
+        if (user.isVerified === false) navigate("/pending-approval");
+        else navigate("/provider-dashboard");
+      } else if (user.role === "admin") navigate("/admin-dashboard");
     } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
+      const msg = error.response?.data?.message || "Login failed";
+      setMessage(msg);
+
+      // If backend returns 403 for unverified provider, redirect
+      if (
+        error.response?.status === 403 &&
+        msg.includes("awaiting admin approval")
+      ) {
+        navigate("/pending-approval");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,9 +82,10 @@ const Login = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-lg font-medium text-white transition
-              ${loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+              ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
               }`}
           >
             {loading ? "Logging in..." : "Login"}
