@@ -71,33 +71,35 @@ const ProviderDashboard = () => {
       const res = await API.get("/services/my-services");
       setServices(res.data);
     } catch (err) {
-      console.log("Error fetching services:", err.response?.data || err.message);
+      console.log(
+        "Error fetching services:",
+        err.response?.data || err.message
+      );
     }
   };
 
   // Update booking status (Accepted / Rejected)
-const updateStatus = async (id, status) => {
-  try {
-    await API.put(`/bookings/${id}/status`, { status }); // <-- new route
-    fetchProviderData(); // refresh dashboard after update
-  } catch (err) {
-    console.log("Status update error:", err.response?.data || err.message);
-  }
-};
+  const updateStatus = async (id, status) => {
+    try {
+      await API.put(`/bookings/${id}/status`, { status }); // <-- new route
+      fetchProviderData(); // refresh dashboard after update
+    } catch (err) {
+      console.log("Status update error:", err.response?.data || err.message);
+    }
+  };
 
-// Update tracking status
-const updateTracking = async (bookingId, nextStatus) => {
-  try {
-    await API.put("/bookings/update-tracking", {
-      bookingId,
-      status: nextStatus, // <-- backend expects 'status', not 'nextStatus'
-    });
-    fetchProviderData(); // refresh dashboard after update
-  } catch (err) {
-    console.log("Tracking update error:", err.response?.data || err.message);
-  }
-};
-
+  // Update tracking status
+  const updateTracking = async (bookingId, nextStatus) => {
+    try {
+      await API.put("/bookings/update-tracking", {
+        bookingId,
+        status: nextStatus, // <-- backend expects 'status', not 'nextStatus'
+      });
+      fetchProviderData(); // refresh dashboard after update
+    } catch (err) {
+      console.log("Tracking update error:", err.response?.data || err.message);
+    }
+  };
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -239,7 +241,28 @@ const updateTracking = async (bookingId, nextStatus) => {
                           >
                             Edit
                           </button>
-                          <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                          <button
+                            onClick={async () => {
+                              if (
+                                window.confirm(
+                                  "Are you sure you want to delete this service?"
+                                )
+                              ) {
+                                try {
+                                  await API.delete(`/services/${s._id}`);
+                                  // Optionally refresh the list or remove from state
+                                  setServices(
+                                    services.filter(
+                                      (service) => service._id !== s._id
+                                    )
+                                  );
+                                } catch (error) {
+                                  console.error("Delete failed", error);
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                          >
                             Delete
                           </button>
                         </td>
@@ -404,4 +427,3 @@ const Section = ({ title, children }) => (
 );
 
 export default ProviderDashboard;
-
