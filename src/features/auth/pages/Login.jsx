@@ -12,7 +12,6 @@ const Login = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -26,34 +25,24 @@ const Login = () => {
       // Save token & user info
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
-      localStorage.setItem("isVerified", user.isVerified.toString());
+      localStorage.setItem("isVerifiedProvider", user.isVerifiedProvider);
 
       setMessage("Login successful!");
 
-      // Redirect based on role & verification
+      // Redirect based on role
       if (user.role === "client") navigate("/client-dashboard");
-      else if (user.role === "provider") {
-        if (user.isVerified === false) navigate("/pending-approval");
-        else navigate("/provider-dashboard");
-      } else if (user.role === "admin") navigate("/admin-dashboard");
+      else if (user.role === "provider") navigate("/provider-dashboard");
+      else if (user.role === "admin") navigate("/admin-dashboard");
     } catch (error) {
       const msg = error.response?.data?.message || "Login failed";
       setMessage(msg);
-
-      // If backend returns 403 for unverified provider, redirect
-      if (
-        error.response?.status === 403 &&
-        msg.includes("awaiting admin approval")
-      ) {
-        navigate("/pending-approval");
-      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 transition-all p-4">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md w-full max-w-md border dark:border-gray-700">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
           Login
@@ -82,10 +71,9 @@ const Login = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-lg font-medium text-white transition
-              ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+              ${loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
               }`}
           >
             {loading ? "Logging in..." : "Login"}

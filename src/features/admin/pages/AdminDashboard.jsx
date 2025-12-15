@@ -23,29 +23,41 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  // ✅ Get token here
+  const token = localStorage.getItem("token");
+
+ const fetchData = async () => {
     try {
-      const res = await API.get("/bookings/admin-dashboard");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Admin dashboard stats
+      const res = await API.get("/bookings/admin-dashboard", { headers });
       setStats(res.data.stats);
       setEarningsHistory(res.data.earningsHistory || []);
       setRecentBookings(res.data.recentBookings || []);
 
-      const allRes = await API.get("/bookings/all");
+      // All bookings
+      const allRes = await API.get("/bookings/all", { headers });
       setAllBookings(allRes.data.bookings || []);
 
-      const servicesRes = await API.get("/services");
+      // All services
+      const servicesRes = await API.get("/services", { headers });
       setAllServices(servicesRes.data || []);
 
-      const reviewsRes = await API.get("/reviews");
+      // All reviews
+      const reviewsRes = await API.get("/reviews", { headers });
       setReviews(reviewsRes.data.reviews || []);
 
-      const pendingRes = await API.get("/admin/providers/pending");
+      // Pending providers
+      const pendingRes = await API.get("/admin/providers/pending", { headers });
+      console.log("Pending Providers:", pendingRes.data.pendingProviders); // Debug
       setPendingProviders(pendingRes.data.pendingProviders || []);
 
-      const contactRes = await API.get("/contact/admin/all");
+      // Contact messages
+      const contactRes = await API.get("/contact/admin/all", { headers });
       setContactMessages(contactRes.data || []);
     } catch (err) {
-      console.log("Admin Dashboard Error:", err);
+      console.error("Admin Dashboard Error:", err.response?.data || err.message);
     }
   };
 
@@ -53,53 +65,47 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  // Update booking status
+  // ------------------------
+  // Actions
+  // ------------------------
   const updateStatus = async (id, status) => {
     try {
-      await API.put(`/bookings/${id}`, { status });
-
-      // Refresh all bookings
-      const allRes = await API.get("/bookings/all");
-      setAllBookings(allRes.data.bookings || []);
+      await API.put(`/bookings/${id}`, { status }, { headers: { Authorization: `Bearer ${token}` } });
+      fetchData();
     } catch (err) {
-      console.log("Update Status Error:", err.response?.data || err.message);
+      console.error("Update Status Error:", err.response?.data || err.message);
     }
   };
 
-  // Approve provider verification
   const approveProvider = async (id) => {
     try {
-      await API.put(`/admin/providers/verify/${id}`, { isVerified: true });
+      await API.put(`/admin/providers/verify/${id}`, { isVerified: true }, { headers: { Authorization: `Bearer ${token}` } });
       alert("Provider approved successfully!");
       fetchData();
     } catch (err) {
-      console.log("Approve Provider Error:", err);
+      console.error("Approve Provider Error:", err.response?.data || err.message);
     }
   };
 
-  // Reject provider
   const rejectProvider = async (id) => {
-    if (!window.confirm("Are you sure you want to reject this provider?"))
-      return;
+    if (!window.confirm("Are you sure you want to reject this provider?")) return;
     try {
-      await API.delete(`/admin/providers/${id}`);
+      await API.delete(`/admin/providers/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       alert("Provider rejected!");
       fetchData();
     } catch (err) {
-      console.log("Reject Provider Error:", err);
+      console.error("Reject Provider Error:", err.response?.data || err.message);
     }
   };
 
-  // Delete service
   const deleteService = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this service?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this service?")) return;
     try {
-      await API.delete(`/services/${id}`);
+      await API.delete(`/services/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       alert("Service deleted successfully");
       fetchData();
     } catch (err) {
-      console.log("Delete Service Error:", err);
+      console.error("Delete Service Error:", err.response?.data || err.message);
       alert("Failed to delete service");
     }
   };
@@ -113,16 +119,22 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen dark:text-gray-200">
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold dark:text-white">Admin Dashboard</h1>
-        <button
-          onClick={logout}
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Logout
-        </button>
-      </div>
+      {/* Sticky Header */}
+        <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-700 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
+              Provider Dashboard
+            </h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </header>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
@@ -171,9 +183,7 @@ const AdminDashboard = () => {
   );
 };
 
-// ------------------------
 // REUSABLE COMPONENTS
-// ------------------------
 const Card = ({ title, value }) => (
   <div className="bg-white dark:bg-gray-800 shadow p-6 rounded-xl">
     <p className="text-gray-600 dark:text-gray-300">{title}</p>
