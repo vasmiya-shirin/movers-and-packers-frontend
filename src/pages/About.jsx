@@ -1,27 +1,65 @@
 export default function About() {
   return (
     <div className="min-h-screen px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-6">About Us</h1>
-        <p className="text-lg leading-relaxed mb-6">
-          Welcome to <span className="font-semibold text-blue-600">MoversPackers</span>,
-          your trusted partner for reliable and hassle-free moving services.
-          Our goal is to make your relocation experience smooth, safe, and stress-free.
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6 text-center">
+          About MoversPackers
+        </h1>
+
+        <p className="text-lg leading-relaxed mb-8 text-center">
+          <span className="font-semibold text-blue-600">MoversPackers</span> is
+          a reliable and technology-driven platform designed to simplify
+          relocation. We connect customers with verified moving professionals to
+          ensure a seamless, secure, and stress-free moving experience.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-8 mb-3">Our Mission</h2>
-        <p className="text-lg leading-relaxed mb-6">
-          We aim to connect clients with professional service providers who deliver quality
-          packing, moving, and logistics support at affordable prices.
-        </p>
+        <div className="grid md:grid-cols-2 gap-10 mt-12">
+          {/* Mission */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Our Mission</h2>
+            <p className="text-lg leading-relaxed">
+              Our mission is to transform the moving industry by providing a
+              transparent, efficient, and customer-focused platform. We aim to
+              empower users with trusted service providers while maintaining
+              high standards of professionalism and reliability.
+            </p>
+          </div>
 
-        <h2 className="text-2xl font-semibold mt-8 mb-3">Why Choose Us?</h2>
-        <ul className="list-disc ml-6 text-lg space-y-2">
-          <li>Verified and trusted service providers</li>
-          <li>Affordable and transparent pricing</li>
-          <li>Fast, reliable, and professional service</li>
-          <li>Secure handling of your valuable items</li>
-        </ul>
+          {/* Vision */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Our Vision</h2>
+            <p className="text-lg leading-relaxed">
+              We envision becoming a leading digital marketplace for relocation
+              services, recognized for quality, trust, and innovation across
+              regions.
+            </p>
+          </div>
+        </div>
+
+        {/* Why Choose Us */}
+        <div className="mt-14">
+          <h2 className="text-2xl font-semibold mb-4">
+            Why Choose MoversPackers?
+          </h2>
+          <ul className="grid md:grid-cols-2 gap-4 text-lg list-disc ml-6">
+            <li>Verified and background-checked service providers</li>
+            <li>Transparent pricing with no hidden costs</li>
+            <li>Professional packing and safe item handling</li>
+            <li>Timely service with real-time tracking support</li>
+            <li>Dedicated customer support throughout the move</li>
+            <li>Secure platform with trusted payment processing</li>
+          </ul>
+        </div>
+
+        {/* Closing */}
+        <div className="mt-14 text-center">
+          <p className="text-lg leading-relaxed">
+            At{" "}
+            <span className="font-semibold text-blue-600">MoversPackers</span>,
+            we are committed to delivering excellence at every step of your
+            relocation journey — from booking to final delivery.
+          </p>
+        </div>
       </div>
     </div>
   );

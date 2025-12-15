@@ -6,13 +6,27 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState(null);
   const [comment, setComment] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+    if (!rating || rating < 1 || rating > 5) {
+      newErrors.rating = "Rating must be between 1 and 5";
+    }
+    if (comment.length > 300) {
+      newErrors.comment = "Comment cannot exceed 300 characters";
+    }
+    return newErrors;
+  };
 
   const submitReview = async (e) => {
     e.preventDefault();
+    setErrors({});
+    const validationErrors = validate();
 
-    if (!comment.trim()) {
-      alert("Please write a comment before submitting.");
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -23,7 +37,7 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
         booking: bookingId,
         provider: providerId,
         rating,
-        comment,
+        comment: comment.trim(),
       });
 
       setComment("");
@@ -31,10 +45,14 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
       onSuccess && onSuccess();
     } catch (error) {
       console.error("Review error:", error);
-      alert("Failed to submit review");
-    }
 
-    setLoading(false);
+      const msg =
+        error.response?.data?.message ||
+        "Failed to submit review. You may have already reviewed this booking.";
+      setErrors({ submit: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,6 +82,11 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
             />
           ))}
         </div>
+        {errors.rating && (
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            {errors.rating}
+          </p>
+        )}
       </div>
 
       {/* Comment */}
@@ -78,16 +101,29 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
           rows={4}
           className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:ring-2 focus:ring-blue-400 transition"
         />
+        {errors.comment && (
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            {errors.comment}
+          </p>
+        )}
       </div>
+
+      {/* Submit Error */}
+      {errors.submit && (
+        <p className="text-red-500 dark:text-red-400 text-sm mb-2">
+          {errors.submit}
+        </p>
+      )}
 
       {/* Submit Button */}
       <button
         type="submit"
         disabled={loading}
         className={`w-full py-3 rounded-lg font-medium text-white transition 
-          ${loading 
-            ? "bg-gray-400 cursor-not-allowed" 
-            : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           }`}
       >
         {loading ? "Submitting..." : "Submit Review"}
@@ -97,4 +133,3 @@ const ReviewForm = ({ bookingId, providerId, onSuccess }) => {
 };
 
 export default ReviewForm;
-

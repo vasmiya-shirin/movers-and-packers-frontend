@@ -117,20 +117,11 @@ const ProviderDashboard = () => {
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="flex flex-col min-h-screen dark:bg-gray-900 dark:text-white">
-        {/* Sticky Header */}
-        <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-700 sticky top-0 z-50">
+        <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-700 rounded-xl mb-6">
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
-              Provider Dashboard
+              Admin Dashboard
             </h1>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={logout}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
           </div>
         </header>
 

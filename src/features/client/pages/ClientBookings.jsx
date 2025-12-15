@@ -88,12 +88,6 @@ const ClientBookings = () => {
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
           My Bookings
         </h1>
-        <button
-          onClick={() => navigate("/client-dashboard")}
-          className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition w-full sm:w-auto"
-        >
-          Back to Profile
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -6,13 +6,33 @@ const AddServiceForm = ({ onServiceAdded }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [locations, setLocations] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!title.trim()) newErrors.title = "Title is required";
+    else if (title.trim().length < 3)
+      newErrors.title = "Title must be at least 3 characters";
+
+    if (description && description.length > 500)
+      newErrors.description = "Description too long";
+
+    if (price === "") newErrors.price = "Price is required";
+    else if (isNaN(price) || Number(price) < 0)
+      newErrors.price = "Price must be a positive number";
+
+    return newErrors;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
 
-    if (!title || !price) {
-      alert("Title and Price are required");
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -21,7 +41,7 @@ const AddServiceForm = ({ onServiceAdded }) => {
       const res = await API.post("/services", {
         title,
         description,
-        price,
+        price: Number(price),
         availableLocations: locations
           .split(",")
           .map((l) => l.trim())
@@ -29,8 +49,6 @@ const AddServiceForm = ({ onServiceAdded }) => {
       });
 
       alert("Service added successfully!");
-
-      // Clear form
       setTitle("");
       setDescription("");
       setPrice("");
@@ -39,7 +57,7 @@ const AddServiceForm = ({ onServiceAdded }) => {
       if (onServiceAdded) onServiceAdded(res.data);
     } catch (err) {
       console.error("Error adding service:", err);
-      alert("Failed to add service");
+      alert(err.response?.data?.message || "Failed to add service");
     } finally {
       setLoading(false);
     }
@@ -55,38 +73,60 @@ const AddServiceForm = ({ onServiceAdded }) => {
       </h3>
 
       <div className="flex flex-col md:flex-row gap-4">
-        <input
-          type="text"
-          placeholder="Service Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="flex-1 border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-          required
-        />
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Service Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+          {errors.title && (
+            <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+              {errors.title}
+            </p>
+          )}
+        </div>
+
+        <div className="flex-1">
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full border p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+          {errors.price && (
+            <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+              {errors.price}
+            </p>
+          )}
+        </div>
       </div>
 
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none resize-none h-24"
-      />
+      <div>
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none h-24"
+        />
+        {errors.description && (
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            {errors.description}
+          </p>
+        )}
+      </div>
 
-      <input
-        type="text"
-        placeholder="Available Locations (comma separated)"
-        value={locations}
-        onChange={(e) => setLocations(e.target.value)}
-        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-      />
+      <div>
+        <input
+          type="text"
+          placeholder="Available Locations (comma separated)"
+          value={locations}
+          onChange={(e) => setLocations(e.target.value)}
+          className="w-full border p-3 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+        />
+      </div>
 
       <button
         type="submit"
@@ -104,4 +144,3 @@ const AddServiceForm = ({ onServiceAdded }) => {
 };
 
 export default AddServiceForm;
-

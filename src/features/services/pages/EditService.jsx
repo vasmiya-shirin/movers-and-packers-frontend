@@ -111,12 +111,6 @@ const EditService = () => {
           {loading ? "Updating..." : "Update Service"}
         </button>
       </form>
-      <button
-        onClick={() => navigate(-1)}
-        className="mt-6 w-full sm:w-auto bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow font-medium transition"
-      >
-        Back
-      </button>
     </div>
   );
 };

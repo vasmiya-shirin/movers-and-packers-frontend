@@ -105,12 +105,6 @@ const ClientDashboard = () => {
           >
             Edit Profile
           </li>
-          <li
-            className="p-3 bg-red-500 text-white font-medium rounded-lg cursor-pointer hover:bg-red-600 transition"
-            onClick={handleLogout}
-          >
-            Logout
-          </li>
         </ul>
       </aside>
 
