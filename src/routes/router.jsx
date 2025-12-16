@@ -88,9 +88,7 @@ export const router = createBrowserRouter([
       {
         path: "/services",
         element: (
-          <ProtectedRoutes>
             <ServiceList />
-          </ProtectedRoutes>
         ),
       },
       {
