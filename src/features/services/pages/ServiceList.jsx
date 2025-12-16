@@ -6,6 +6,9 @@ const ServiceList = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
 
+  // Check if user is logged in
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -17,6 +20,15 @@ const ServiceList = () => {
     };
     fetchServices();
   }, []);
+
+  // Handle click for booking or login
+  const handleActionClick = (serviceId) => {
+    if (isLoggedIn) {
+      navigate(`/services/${serviceId}`); // navigate to booking page
+    } else {
+      navigate("/login"); // redirect guests to login
+    }
+  };
 
   return (
     <div className="p-6 sm:p-10 min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
@@ -30,7 +42,6 @@ const ServiceList = () => {
             key={service._id}
             className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 cursor-pointer
                        hover:shadow-lg transition-transform transform hover:-translate-y-1"
-            onClick={() => navigate(`/services/${service._id}`)}
           >
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
               {service.title}
@@ -59,6 +70,16 @@ const ServiceList = () => {
             <p className="font-bold mt-4 text-lg text-blue-600 dark:text-blue-400">
               ₹ {service.price}
             </p>
+
+            {/* Action Button */}
+            <button
+              onClick={() => handleActionClick(service._id)}
+              className={`mt-4 w-full py-2 rounded text-white ${
+                isLoggedIn ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-600 hover:bg-gray-700"
+              }`}
+            >
+              {isLoggedIn ? "Book Now" : "Login to Book"}
+            </button>
           </div>
         ))}
       </div>
